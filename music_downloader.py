@@ -1,10 +1,9 @@
 from requests import get
 from deemix.__main__ import download
 from tagger import Tagger
-from sys import argv
 
 # Constants
-AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/search.json?types=songs,albums&term={name}&limit={limit}"
+AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/search.json?types=songs,albums&term={name}&limit={limit}&l={language}"
 DEEZER_ISRC_QUERY = r"https://api.deezer.com/2.0/track/isrc:{isrc}"
 ARL = r"5bbd39c9df0b86568f46c9310cb61f4c9c3e3a1cef78b0a5e142066dca8c1ea495edea03cbb1536a5ba1fd2cff9b15fe21114d221140b57e0ab96484d4a1f4d0acbbfe66af7587a8f2af59ebeb5036c7d09bd1d8ad936f4da1b9c1ed6af46e21"
 NOT_FOUND = 'The song "{song_name}" was not found.'
@@ -13,6 +12,8 @@ ARTWORK_EMBED_SIZE = 1400
 AMSONG_REPR = """Song: {name} // Artist: {artist_name} // Album: {album_name}{explicit}
 Release: {release_date}
 Artwork: {artwork_url}"""
+SONG_SEARCH_LIMIT = 1
+ALBUM_SEARCH_LIMIT = 3
 
 
 class AMObject:
@@ -117,8 +118,8 @@ class AMAlbum(AMObject):
 
 class AMFunctions:
     @staticmethod
-    def query(name, limit=1):
-        query = AM_QUERY.format(name=name, limit=limit)
+    def query(name, limit=SONG_SEARCH_LIMIT, language='en'):
+        query = AM_QUERY.format(name=name, limit=limit, language=language)
         json = get(query).json()
         return json
 
@@ -136,10 +137,20 @@ class AMFunctions:
     @classmethod
     def attach_album(cls, amsong):
         wanted_album_id = amsong.album_id_from_song_url()
-        results = cls.query(amsong.artist_name + ' ' + amsong.album_name, 4)
+        results = cls.query(amsong.artist_name + ' ' + amsong.album_name, ALBUM_SEARCH_LIMIT)
         for album in results['albums']['data']:
             if album['id'] == wanted_album_id:
                 amsong.album = AMAlbum(album)
+                return 0
+        return 1
+
+    @classmethod
+    def translate_song(cls, amsong):
+        wanted_song_id = amsong.id
+        results = cls.query(amsong.artist_name + ' ' + amsong.album_name, SONG_SEARCH_LIMIT)
+        for song in results['songs']['data']:
+            if song['id'] == wanted_song_id:
+                amsong.json['attributes']['genreNames'] = AMSong(song).genres
                 return 0
         return 1
 
@@ -153,10 +164,13 @@ class DeezerFunctions:
 def download_song():
     # Search
     search = input("Enter song name (+ Artist): ")
-    query_results = AMFunctions.query(search)
+    language = 'he' if input("Hebrew? (y/n): ") == 'y' else 'en'
+    query_results = AMFunctions.query(search, language=language)
     song = AMFunctions.choose_song(query_results)
     # Attach album metadata
     AMFunctions.attach_album(song)
+    # Translate genres
+    print(AMFunctions.translate_song(song))
     # Generate Deezer URL
     deezer_url = DeezerFunctions.amsong_to_url(song)
     # Download song
