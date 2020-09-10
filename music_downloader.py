@@ -1,5 +1,7 @@
 from requests import get
 from deemix.__main__ import download
+from tagger import Tagger
+from sys import argv
 
 # Constants
 AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/search.json?types=songs,albums&term={name}&limit={limit}"
@@ -91,24 +93,31 @@ class AMSong(AMObject):
 
 
 class AMAlbum(AMObject):
+    def __init__(self, json=None):
+        super().__init__(json)
+
+    @property
     def album_name(self):
         return self.name
 
+    @property
     def copyright(self):
         if 'copyright' in self.json['attributes']:
             return self.json['attributes']['copyright']
         return None
 
+    @property
     def record_label(self):
         return self.json['attributes']['recordLabel']
 
+    @property
     def track_count(self):
         return self.json['attributes']['trackCount']
 
 
 class AMFunctions:
     @staticmethod
-    def query(name, limit):
+    def query(name, limit=1):
         query = AM_QUERY.format(name=name, limit=limit)
         json = get(query).json()
         return json
@@ -127,7 +136,7 @@ class AMFunctions:
     @classmethod
     def attach_album(cls, amsong):
         wanted_album_id = amsong.album_id_from_song_url()
-        results = cls.query(amsong.artist_name + ' ' + amsong.album_name, 5)
+        results = cls.query(amsong.artist_name + ' ' + amsong.album_name, 4)
         for album in results['albums']['data']:
             if album['id'] == wanted_album_id:
                 amsong.album = AMAlbum(album)
@@ -135,12 +144,28 @@ class AMFunctions:
         return 1
 
 
+class DeezerFunctions:
+    @staticmethod
+    def amsong_to_url(amsong):
+        return DEEZER_ISRC_QUERY.format(isrc=amsong.isrc)
+
+
+def download_song():
+    # Search
+    search = input("Enter song name (+ Artist): ")
+    query_results = AMFunctions.query(search)
+    song = AMFunctions.choose_song(query_results)
+    # Attach album metadata
+    AMFunctions.attach_album(song)
+    # Generate Deezer URL
+    deezer_url = DeezerFunctions.amsong_to_url(song)
+    # Download song
+    download(deezer_url, ARL)
+    # Tag metadata
+    Tagger.tag_song(song)
+    # Rename 'isrc.mp3 to %artist% - %name% template'
+    Tagger.rename_isrc_path(song)
+
+
 if __name__ == '__main__':
-    x = AMFunctions.choose_song(AMFunctions.query('wish you were gay', 1))
-    AMFunctions.attach_album(x)
-    # search = input("Enter song name (+ Artist): ")
-    # x = AMFunctions.query(search, 3)
-    # y = AMFunctions.choose_song(x)
-    # download_url = DEEZER_ISRC_QUERY.format(isrc=y.isrc)
-    # print(download_url)
-    # download(download_url, ARL)
+    download_song()

@@ -1,4 +1,5 @@
 from mutagen.id3 import ID3, TXXX, TIT2, TPE1, TALB, TPE2, TCON, TPUB, TSRC, APIC, TCOP, TDRC
+from os import rename
 
 TAGS = {
     "song_name": lambda amsong: TIT2(text=amsong.name),
@@ -16,14 +17,27 @@ TAGS = {
 
 
 class Tagger:
-    @staticmethod
-    def tag_all(amsong, file_path):
+    @classmethod
+    def tag_song(cls, amsong):
+        file_path = cls.generate_isrc_path(amsong)
         id3 = ID3(file_path)
-        errors = {}
+        errors = []
         for key, tag in TAGS.items():
             try:
                 id3.add(tag(amsong))
             except:
-                errors[key] = 1
+                errors.append(key)
         id3.save(v1=2, v2_version=3, v23_sep='/')
         print(errors)
+
+    @classmethod
+    def rename_isrc_path(cls, amsong):
+        rename(cls.generate_isrc_path(amsong), cls.generate_good_path(amsong))
+
+    @staticmethod
+    def generate_isrc_path(amsong):
+        return f"{amsong.isrc}.mp3"
+
+    @staticmethod
+    def generate_good_path(amsong):
+        return f"{amsong.artist_name} - {amsong.name}.mp3"
