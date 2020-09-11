@@ -14,7 +14,7 @@ def ask(question, bool_dict=BOOL_DICT):
     answer = None
     while answer not in bool_dict:
         answer = input(question)
-    return answer
+    return BOOL_DICT[answer]
 
 
 def search_song():
@@ -28,7 +28,9 @@ def search_song():
     # Attach album metadata
     AMFunctions.attach_album(song, language)
     # Translate genres
-    AMFunctions.translate_song(song)
+    if language == 'he':
+        print("Language:", language)
+        AMFunctions.translate_song(song)
     return song
 
 
@@ -50,8 +52,7 @@ def main(songs_path='./Songs'):
     to_continue = True
     while to_continue:
         songs.append(search_song())
-        answer = ask("--> Another song? (y/n): ")
-        to_continue = BOOL_DICT[answer]
+        to_continue = ask("--> Another song? (y/n): ")
     for song in songs:
         download_song(song, app, tagger)
     rmtree('./config', ignore_errors=True)
