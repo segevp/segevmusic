@@ -1,3 +1,5 @@
+#!/usr/env/ python3
+
 from segevmusic.tagger import Tagger
 from segevmusic.applemusic import AMFunctions
 from segevmusic.deezer import DeezerFunctions
