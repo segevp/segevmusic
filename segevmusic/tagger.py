@@ -1,5 +1,6 @@
 from mutagen.id3 import ID3, TXXX, TIT2, TPE1, TALB, TPE2, TCON, TPUB, TSRC, APIC, TCOP, TDRC
 from os import rename
+from os.path import realpath
 
 TAGS = {
     "song_name": lambda amsong: TIT2(text=amsong.name),
@@ -36,8 +37,8 @@ class Tagger:
 
     @staticmethod
     def generate_isrc_path(amsong):
-        return f"./Songs/{amsong.isrc}.mp3"
+        return realpath(f"./Songs/{amsong.isrc}.mp3")
 
     @staticmethod
     def generate_good_path(amsong):
-        return f"./Songs/{amsong.artist_name} - {amsong.name}.mp3"
+        return realpath(f"./Songs/{amsong.artist_name} - {amsong.name}.mp3")

@@ -12,7 +12,7 @@ class DeezerFunctions:
 
     @staticmethod
     def login(songs_path=None, arl=ARL):
-        localpath = realpath('..')
+        localpath = realpath('.')
         config_folder = join(localpath, 'config')
         songs_folder = songs_path if songs_path else join(localpath, 'Songs')
         app = cli(songs_folder, config_folder)
