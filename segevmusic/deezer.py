@@ -11,10 +11,11 @@ class DeezerFunctions:
         return DEEZER_ISRC_QUERY.format(isrc=amsong.isrc)
 
     @staticmethod
-    def login(arl=ARL):
+    def login(songs_path=None, arl=ARL):
         localpath = realpath('..')
-        config_folder = join(localpath, '../config')
-        app = cli(localpath + '/Songs', config_folder)
+        config_folder = join(localpath, 'config')
+        songs_folder = songs_path if songs_path else join(localpath, 'Songs')
+        app = cli(songs_folder, config_folder)
         app.login(arl)
         return app
 
