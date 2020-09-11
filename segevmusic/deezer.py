@@ -21,4 +21,4 @@ class DeezerFunctions:
 
     @staticmethod
     def download(url, app):
-        app.downloadLink(url)
+        app.downloadLink([url])
