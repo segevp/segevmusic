@@ -34,11 +34,7 @@ def search_song():
     return song
 
 
-def download_song(song, app, tagger):
-    # Generate Deezer URL
-    deezer_url = DeezerFunctions.amsong_to_url(song)
-    # Download song
-    DeezerFunctions.download(deezer_url, app)
+def tag_song(song, tagger):
     # Tag metadata
     tagger.tag_song(song)
     # Rename 'isrc.mp3 to %artist% - %name% template'
@@ -50,11 +46,17 @@ def main(songs_path='./Songs'):
     tagger = Tagger(songs_path)
     songs = []
     to_continue = True
+    # Adding songs
     while to_continue:
         songs.append(search_song())
         to_continue = ask("--> Another song? (y/n): ")
+    # Generate Deezer URLs
+    songs_links = [DeezerFunctions.amsong_to_url(song) for song in songs]
+    # Download songs
+    DeezerFunctions.download(songs_links, app)
+    # Tagging songs
     for song in songs:
-        download_song(song, app, tagger)
+        tag_song(song, tagger)
     rmtree('./config', ignore_errors=True)
 
 
