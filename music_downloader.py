@@ -1,6 +1,6 @@
-from tagger import Tagger
-from applemusic import AMFunctions
-from deezer import DeezerFunctions
+from segevmusic.tagger import Tagger
+from segevmusic.applemusic import AMFunctions
+from segevmusic.deezer import DeezerFunctions
 from shutil import rmtree
 
 BOOL_DICT = {'y': True, 'Y': True, 'yes': True, 'Yes': True,
