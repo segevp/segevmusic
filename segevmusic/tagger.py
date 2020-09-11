@@ -1,6 +1,6 @@
 from mutagen.id3 import ID3, TXXX, TIT2, TPE1, TALB, TPE2, TCON, TPUB, TSRC, APIC, TCOP, TDRC
 from os import rename
-from os.path import realpath
+from os.path import realpath, join
 
 TAGS = {
     "song_name": lambda amsong: TIT2(text=amsong.name),
@@ -19,9 +19,11 @@ ERROR_MSG = "Failed tags: {tags}"
 
 
 class Tagger:
-    @classmethod
-    def tag_song(cls, amsong):
-        file_path = cls.generate_isrc_path(amsong)
+    def __init__(self, path):
+        self.path = realpath(path)
+
+    def tag_song(self, amsong):
+        file_path = self.generate_isrc_path(amsong)
         id3 = ID3(file_path)
         errors = []
         for key, tag in TAGS.items():
@@ -30,19 +32,16 @@ class Tagger:
             except:
                 errors.append(key)
         id3.save(v1=2, v2_version=3, v23_sep='/')
-        cls.print_errors(errors)
+        self.print_errors(errors)
 
-    @classmethod
-    def rename_isrc_path(cls, amsong):
-        rename(cls.generate_isrc_path(amsong), cls.generate_good_path(amsong))
+    def rename_isrc_path(self, amsong):
+        rename(self.generate_isrc_path(amsong), self.generate_good_path(amsong))
 
-    @staticmethod
-    def generate_isrc_path(amsong):
-        return realpath(f"./Songs/{amsong.isrc}.mp3")
+    def generate_isrc_path(self, amsong):
+        return join(self.path, f"{amsong.isrc}.mp3")
 
-    @staticmethod
-    def generate_good_path(amsong):
-        return realpath(f"./Songs/{amsong.artist_name} - {amsong.name}.mp3")
+    def generate_good_path(self, amsong):
+        return join(self.path, f"{amsong.artist_name} - {amsong.name}.mp3")
 
     @staticmethod
     def print_errors(errors):
