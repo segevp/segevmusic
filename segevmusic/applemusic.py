@@ -129,9 +129,9 @@ class AMFunctions:
         return songs[chosen_index]
 
     @classmethod
-    def attach_album(cls, amsong):
+    def attach_album(cls, amsong, language):
         wanted_album_id = amsong.album_id_from_song_url()
-        results = cls.query(amsong.artist_name + ' ' + amsong.album_name, ALBUM_SEARCH_LIMIT)
+        results = cls.query(amsong.artist_name + ' ' + amsong.album_name, ALBUM_SEARCH_LIMIT, language)
         for album in results['albums']['data']:
             if album['id'] == wanted_album_id:
                 amsong.album = AMAlbum(album)

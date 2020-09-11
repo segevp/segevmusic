@@ -26,7 +26,7 @@ def search_song():
     # Run query
     song = AMFunctions.choose_song(query_results)
     # Attach album metadata
-    AMFunctions.attach_album(song)
+    AMFunctions.attach_album(song, language)
     # Translate genres
     AMFunctions.translate_song(song)
     return song
