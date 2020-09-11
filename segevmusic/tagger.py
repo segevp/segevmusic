@@ -15,6 +15,7 @@ TAGS = {
     "release_date": lambda amsong: TDRC(text=amsong.release_date),
     "artwork": lambda amsong: APIC(mime='image/jpeg', desc='cover', data=amsong.album.get_artwork())
 }
+ERROR_MSG = "Failed tags: {tags}"
 
 
 class Tagger:
@@ -29,7 +30,7 @@ class Tagger:
             except:
                 errors.append(key)
         id3.save(v1=2, v2_version=3, v23_sep='/')
-        print(errors)
+        cls.print_errors(errors)
 
     @classmethod
     def rename_isrc_path(cls, amsong):
@@ -42,3 +43,11 @@ class Tagger:
     @staticmethod
     def generate_good_path(amsong):
         return realpath(f"./Songs/{amsong.artist_name} - {amsong.name}.mp3")
+
+    @staticmethod
+    def print_errors(errors):
+        advisory = "itunes_advisory"
+        if advisory in errors:
+            errors.remove(advisory)
+        if errors:
+            print(ERROR_MSG.format(tags=errors))
