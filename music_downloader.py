@@ -1,6 +1,7 @@
 from tagger import Tagger
 from applemusic import AMFunctions
 from deezer import DeezerFunctions
+from shutil import rmtree
 
 BOOL_DICT = {'y': True, 'Y': True, 'yes': True, 'Yes': True,
              'n': False, 'N': False, 'no': False, 'No': False}
@@ -40,6 +41,7 @@ def main():
         download_song(app)
         answer = ask("Continue downloading? (y/n): ")
         to_continue = BOOL_DICT[answer]
+    rmtree('./config')
 
 
 if __name__ == '__main__':
