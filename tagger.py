@@ -36,8 +36,8 @@ class Tagger:
 
     @staticmethod
     def generate_isrc_path(amsong):
-        return f"{amsong.isrc}.mp3"
+        return f"./Songs/{amsong.isrc}.mp3"
 
     @staticmethod
     def generate_good_path(amsong):
-        return f"{amsong.artist_name} - {amsong.name}.mp3"
+        return f"./Songs/{amsong.artist_name} - {amsong.name}.mp3"

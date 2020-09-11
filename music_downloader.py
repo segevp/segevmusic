@@ -1,6 +1,7 @@
 from requests import get
-from deemix.__main__ import download
 from tagger import Tagger
+from deemix.app.cli import cli
+import os.path
 
 # Constants
 AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/search.json?types=songs,albums&term={name}&limit={limit}&l={language}"
@@ -12,8 +13,10 @@ ARTWORK_EMBED_SIZE = 1400
 AMSONG_REPR = """Song: {name} // Artist: {artist_name} // Album: {album_name}{explicit}
 Release: {release_date}
 Artwork: {artwork_url}"""
-SONG_SEARCH_LIMIT = 1
+SONG_SEARCH_LIMIT = 3
 ALBUM_SEARCH_LIMIT = 3
+BOOL_DICT = {'y': True, 'Y': True, 'yes': True, 'Yes': True,
+             'n': False, 'N': False, 'no': False, 'No': False}
 
 
 class AMObject:
@@ -160,11 +163,27 @@ class DeezerFunctions:
     def amsong_to_url(amsong):
         return DEEZER_ISRC_QUERY.format(isrc=amsong.isrc)
 
+    @staticmethod
+    def download(url, arl=None):
+        localpath = os.path.realpath('.')
+        config_folder = os.path.join(localpath, 'config')
+        app = cli(localpath + '/Songs/', config_folder)
+        app.login(arl)
+        url = [url] if type(url) == str else url
+        app.downloadLink(url)
+
+
+def ask(question, bool_dict=BOOL_DICT):
+    answer = None
+    while answer not in BOOL_DICT:
+        answer = input(question)
+    return answer
+
 
 def download_song():
     # Search
     search = input("Enter song name (+ Artist): ")
-    language = 'he' if input("Hebrew? (y/n): ") == 'y' else 'en'
+    language = 'he' if ask("Hebrew? (y/n): ") else 'en'
     query_results = AMFunctions.query(search, language=language)
     song = AMFunctions.choose_song(query_results)
     # Attach album metadata
@@ -174,12 +193,20 @@ def download_song():
     # Generate Deezer URL
     deezer_url = DeezerFunctions.amsong_to_url(song)
     # Download song
-    download(deezer_url, ARL)
+    DeezerFunctions.download(deezer_url, ARL)
     # Tag metadata
     Tagger.tag_song(song)
     # Rename 'isrc.mp3 to %artist% - %name% template'
     Tagger.rename_isrc_path(song)
 
 
+def main():
+    to_continue = True
+    while to_continue:
+        download_song()
+        answer = ask("Continue downloading? (y/n): ")
+        to_continue = BOOL_DICT[answer]
+
+
 if __name__ == '__main__':
-    download_song()
+    main()
