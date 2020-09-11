@@ -3,3 +3,4 @@ __pycache__
 config/
 Songs/
 *.mp3
+.DS_Store
