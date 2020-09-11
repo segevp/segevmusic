@@ -5,7 +5,7 @@ ARTWORK_REPR_SIZE = 600
 AMSONG_REPR = """Song: {name} // Artist: {artist_name} // Album: {album_name}{explicit}
 Release: {release_date}
 Artwork: {artwork_url}"""
-SONG_SEARCH_LIMIT = 3
+SONG_SEARCH_LIMIT = 5
 ALBUM_SEARCH_LIMIT = 3
 AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/search.json?types=songs,albums&term={name}&limit={limit}&l={language}"
 
@@ -125,7 +125,7 @@ class AMFunctions:
         for song in songs:
             print(f"-- OPTION #{index + 1} --", song, sep='\n', end='\n\n')
             index += 1
-        chosen_index = int(input(f"What is your choice? (1-{index}) ")) - 1 if len(songs) > 1 else 0
+        chosen_index = int(input(f"--> What is your choice? (1-{index}) ")) - 1 if len(songs) > 1 else 0
         return songs[chosen_index]
 
     @classmethod

@@ -19,9 +19,9 @@ def ask(question, bool_dict=BOOL_DICT):
 
 def search_song():
     # Search
-    search = input("Enter song name (+ Artist): ")
+    search = input("--> Enter song name (+ Artist): ")
     # Set song language
-    language = 'he' if ask("Hebrew? (y/n): ") else 'en'
+    language = 'he' if ask("--> Hebrew? (y/n): ") else 'en'
     query_results = AMFunctions.query(search, language=language)
     # Run query
     song = AMFunctions.choose_song(query_results)
@@ -50,7 +50,7 @@ def main(songs_path='./Songs'):
     to_continue = True
     while to_continue:
         songs.append(search_song())
-        answer = ask("Another song? (y/n): ")
+        answer = ask("--> Another song? (y/n): ")
         to_continue = BOOL_DICT[answer]
     for song in songs:
         download_song(song, app, tagger)
