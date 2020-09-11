@@ -49,7 +49,11 @@ def main(songs_path='./Songs'):
     to_continue = True
     # Adding songs
     while to_continue:
-        songs.append(search_song())
+        try:
+            songs.append(search_song())
+        except KeyError:
+            print("--> ERROR: Nothing found; Check spelling errors.")
+            continue
         to_continue = ask("--> Another song? (y/n): ")
     # Generate Deezer URLs
     songs_links = [DeezerFunctions.amsong_to_url(song) for song in songs]
