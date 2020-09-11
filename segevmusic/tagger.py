@@ -1,6 +1,6 @@
 from mutagen.id3 import ID3, TXXX, TIT2, TPE1, TALB, TPE2, TCON, TPUB, TSRC, APIC, TCOP, TDRC
 from os import rename
-from os.path import realpath, join
+from os.path import realpath, join, exists
 
 TAGS = {
     "song_name": lambda amsong: TIT2(text=amsong.name),
@@ -24,6 +24,9 @@ class Tagger:
 
     def tag_song(self, amsong):
         file_path = self.generate_isrc_path(amsong)
+        if not exists(file_path):
+            print(f"--> ERROR: Song {amsong.name} not found! Skipping...")
+            return 1
         id3 = ID3(file_path)
         errors = []
         for key, tag in TAGS.items():
