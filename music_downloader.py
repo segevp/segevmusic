@@ -5,6 +5,7 @@ from segevmusic.applemusic import AMFunctions
 from segevmusic.deezer import DeezerFunctions
 from shutil import rmtree
 from sys import argv
+from os.path import exists
 
 BOOL_DICT = {'y': True, 'Y': True, 'yes': True, 'Yes': True,
              'n': False, 'N': False, 'no': False, 'No': False}
@@ -56,6 +57,11 @@ def main(songs_path='./Songs'):
     DeezerFunctions.download(songs_links, app)
     # Tagging songs
     for song in songs:
+        # Check if song was downloaded
+        song_path = tagger.generate_isrc_path(song)
+        if not exists(song_path):
+            print(f"--> ERROR: Song {song.name} was not downloaded!")
+            continue
         tag_song(song, tagger)
     rmtree('./config', ignore_errors=True)
 
