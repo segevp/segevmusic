@@ -16,16 +16,22 @@ def ask(question, bool_dict=BOOL_DICT):
     return answer
 
 
-def download_song(app):
+def search_song():
     # Search
     search = input("Enter song name (+ Artist): ")
+    # Set song language
     language = 'he' if ask("Hebrew? (y/n): ") else 'en'
     query_results = AMFunctions.query(search, language=language)
+    # Run query
     song = AMFunctions.choose_song(query_results)
     # Attach album metadata
     AMFunctions.attach_album(song)
     # Translate genres
-    print(AMFunctions.translate_song(song))
+    AMFunctions.translate_song(song)
+    return song
+
+
+def download_song(song, app):
     # Generate Deezer URL
     deezer_url = DeezerFunctions.amsong_to_url(song)
     # Download song
@@ -38,11 +44,14 @@ def download_song(app):
 
 def main():
     to_continue = True
+    songs = []
     app = DeezerFunctions.login()
     while to_continue:
-        download_song(app)
-        answer = ask("Continue downloading? (y/n): ")
+        songs.append(search_song())
+        answer = ask("Another song? (y/n): ")
         to_continue = BOOL_DICT[answer]
+    for song in songs:
+        download_song(song, app)
     rmtree('./config', ignore_errors=True)
 
 
