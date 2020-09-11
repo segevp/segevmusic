@@ -1,4 +1,4 @@
-#!/usr/env/ python3
+#!/usr/bin/env python3
 
 from segevmusic.tagger import Tagger
 from segevmusic.applemusic import AMFunctions
