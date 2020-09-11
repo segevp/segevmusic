@@ -113,7 +113,7 @@ class AMAlbum(AMObject):
 class AMFunctions:
     @staticmethod
     def query(name, limit=SONG_SEARCH_LIMIT, language='en'):
-        query = AM_QUERY.format(name=name, limit=limit, language=language)
+        query = AM_QUERY.format(name=name.replace(' ', '+'), limit=limit, language=language)
         json = get(query).json()
         return json
 
@@ -136,6 +136,14 @@ class AMFunctions:
             if album['id'] == wanted_album_id:
                 amsong.album = AMAlbum(album)
                 return 0
+        print(f"--> WARNING: Failed fetching album metadata for {amsong.name}. Trying again...")
+        results = cls.query(amsong.album_name, 5, language)
+        for album in results['albums']['data']:
+            if album['id'] == wanted_album_id:
+                amsong.album = AMAlbum(album)
+                print("--> SUCCESS: Fetched album metadata successfully")
+                return 0
+        print("--> WARNING: Failed second attempt. Giving up.")
         return 1
 
     @classmethod
