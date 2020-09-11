@@ -9,7 +9,7 @@ BOOL_DICT = {'y': True, 'Y': True, 'yes': True, 'Yes': True,
 
 def ask(question, bool_dict=BOOL_DICT):
     answer = None
-    while answer not in BOOL_DICT:
+    while answer not in bool_dict:
         answer = input(question)
     return answer
 
