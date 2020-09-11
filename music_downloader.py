@@ -41,7 +41,7 @@ def main():
         download_song(app)
         answer = ask("Continue downloading? (y/n): ")
         to_continue = BOOL_DICT[answer]
-    rmtree('./config')
+    rmtree('./config', ignore_errors=True)
 
 
 if __name__ == '__main__':
