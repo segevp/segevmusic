@@ -1,4 +1,5 @@
 from requests import get
+from segevmusic.utils import has_hebrew
 
 ARTWORK_EMBED_SIZE = 1400
 ARTWORK_REPR_SIZE = 600
@@ -155,3 +156,19 @@ class AMFunctions:
                 amsong.json['attributes']['genreNames'] = AMSong(song).genres
                 return 0
         return 1
+
+    @classmethod
+    def search_song(cls):
+        # Search
+        search = input("--> Enter song name (+ Artist): ")
+        # Set song language
+        language = 'he' if has_hebrew(search) else 'en'
+        query_results = cls.query(search, language=language)
+        # Run query
+        song = cls.choose_song(query_results)
+        # Attach album metadata
+        cls.attach_album(song, language)
+        # Translate genres
+        if language == 'he':
+            cls.translate_song(song)
+        return song

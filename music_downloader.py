@@ -3,39 +3,10 @@
 from segevmusic.tagger import Tagger
 from segevmusic.applemusic import AMFunctions
 from segevmusic.deezer import DeezerFunctions
+from segevmusic.utils import ask
 from shutil import rmtree
 from sys import argv
 from os.path import exists
-
-BOOL_DICT = {'y': True, 'Y': True, 'yes': True, 'Yes': True,
-             'n': False, 'N': False, 'no': False, 'No': False}
-
-
-def ask(question, bool_dict=BOOL_DICT):
-    answer = None
-    while answer not in bool_dict:
-        answer = input(question)
-    return BOOL_DICT[answer]
-
-
-def has_hebrew(name):
-    return any("\u0590" <= letter <= "\u05EA" for letter in name)
-
-
-def search_song():
-    # Search
-    search = input("--> Enter song name (+ Artist): ")
-    # Set song language
-    language = 'he' if has_hebrew(search) else 'en'
-    query_results = AMFunctions.query(search, language=language)
-    # Run query
-    song = AMFunctions.choose_song(query_results)
-    # Attach album metadata
-    AMFunctions.attach_album(song, language)
-    # Translate genres
-    if language == 'he':
-        AMFunctions.translate_song(song)
-    return song
 
 
 def tag_song(song, tagger):
@@ -53,7 +24,7 @@ def main(songs_path='./Songs'):
     # Adding songs
     while to_continue:
         try:
-            songs.append(search_song())
+            songs.append(AMFunctions.search_song())
         except KeyError:
             print("--> ERROR: Nothing found; Check spelling errors.")
             continue
