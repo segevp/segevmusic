@@ -18,11 +18,15 @@ def ask(question, bool_dict=BOOL_DICT):
     return BOOL_DICT[answer]
 
 
+def has_hebrew(name):
+    return any("\u0590" <= letter <= "\u05EA" for letter in name)
+
+
 def search_song():
     # Search
     search = input("--> Enter song name (+ Artist): ")
     # Set song language
-    language = 'he' if ask("--> Hebrew? (y/n): ") else 'en'
+    language = 'he' if has_hebrew(search) else 'en'
     query_results = AMFunctions.query(search, language=language)
     # Run query
     song = AMFunctions.choose_song(query_results)
@@ -30,7 +34,6 @@ def search_song():
     AMFunctions.attach_album(song, language)
     # Translate genres
     if language == 'he':
-        print("Language:", language)
         AMFunctions.translate_song(song)
     return song
 
