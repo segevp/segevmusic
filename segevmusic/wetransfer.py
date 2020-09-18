@@ -81,7 +81,7 @@ class WTSession(requests.Session):
         chunk_number = 0
         print(f"--> Started uploading {file_name}...")
         while True:
-            print(f"\r--> {chunk_number * 100 / self.total_chunks}% uploaded...", end='')
+            print("\r--> {0:.2f}% uploaded...".format(chunk_number * 100 / self.total_chunks), end='')
             chunk = f.read(default_chunk_size)
             chunk_size = len(chunk)
             if chunk_size == 0:
