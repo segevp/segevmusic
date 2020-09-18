@@ -123,7 +123,7 @@ class AMFunctions:
     def choose_song(json):
         index = 0
         songs = [AMSong(song_json) for song_json in json['songs']['data']]
-        print("Choose the correct song:")
+        print("--> Choose the correct song:")
         for song in songs:
             print(f"-- OPTION #{index + 1} --", song, sep='\n', end='\n\n')
             index += 1
@@ -145,7 +145,7 @@ class AMFunctions:
                 amsong.album = AMAlbum(album)
                 print("--> SUCCESS: Fetched album metadata successfully")
                 return 0
-        print("--> WARNING: Failed second attempt. Giving up.")
+        print("--> ERROR: Failed second attempt. Giving up.")
         return 1
 
     @classmethod
