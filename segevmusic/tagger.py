@@ -1,5 +1,5 @@
 from mutagen.id3 import ID3, TXXX, TIT2, TPE1, TALB, TPE2, TCON, TPUB, TSRC, APIC, TCOP, TDRC
-from os import rename
+from os import replace
 from os.path import realpath, join
 
 TAGS = {
@@ -36,7 +36,7 @@ class Tagger:
 
     def rename_isrc_path(self, amsong):
         new_path = self.generate_good_path(amsong)
-        rename(self.generate_isrc_path(amsong), new_path)
+        replace(self.generate_isrc_path(amsong), new_path)
         return new_path
 
     def generate_isrc_path(self, amsong):
