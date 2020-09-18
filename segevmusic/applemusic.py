@@ -6,7 +6,7 @@ ARTWORK_REPR_SIZE = 600
 AMSONG_REPR = """Song: {name} // Artist: {artist_name} // Album: {album_name}{explicit}
 Release: {release_date}
 Artwork: {artwork_url}"""
-SONG_SEARCH_LIMIT = 5
+SONG_SEARCH_LIMIT = 1
 ALBUM_SEARCH_LIMIT = 3
 AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/search.json?types=songs,albums&term={name}&limit={limit}&l={language}"
 

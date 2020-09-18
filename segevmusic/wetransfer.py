@@ -25,6 +25,7 @@ class WTSession(requests.Session):
     def __init__(self):
         super().__init__()
         self.prepare_session()
+        self.total_chunks = 0
 
     def prepare_session(self):
         """Prepare a wetransfer.com session.
@@ -77,11 +78,10 @@ class WTSession(requests.Session):
         """
         f = open(file, 'rb')
         file_name = os.path.basename(file)
-        total_chunks = round(os.path.getsize(file) / WETRANSFER_DEFAULT_CHUNK_SIZE)
         chunk_number = 0
         print(f"--> Started uploading {file_name}...")
         while True:
-            print(f"\r--> {chunk_number / total_chunks * 100}% uploaded...", end='')
+            print(f"\r--> {chunk_number * 100 / self.total_chunks}% uploaded...", end='')
             chunk = f.read(default_chunk_size)
             chunk_size = len(chunk)
             if chunk_size == 0:
@@ -119,6 +119,9 @@ class WTSession(requests.Session):
         for f in files:
             if not os.path.exists(f):
                 raise FileNotFoundError(f)
+
+        self.total_chunks = round(sum([one_file['size'] for one_file in
+                                       [self.file_name_and_size(f) for f in files]]) / WETRANSFER_DEFAULT_CHUNK_SIZE)
 
         # Check that there are no duplicates filenames, despite possible different directories
         filenames = [os.path.basename(f) for f in files]
