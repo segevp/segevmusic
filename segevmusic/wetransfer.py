@@ -18,7 +18,7 @@ PUT_JSON = {
 }
 CSRF_REGEX = 'name="csrf-token" content="([^"]+)"'
 
-WETRANSFER_DEFAULT_CHUNK_SIZE = 5242880
+WETRANSFER_DEFAULT_CHUNK_SIZE = 2097152
 
 
 class WTSession(requests.Session):
@@ -76,9 +76,11 @@ class WTSession(requests.Session):
         Return the parsed JSON response.
         """
         f = open(file, 'rb')
-
+        total_chunks = round(os.path.getsize(file) / WETRANSFER_DEFAULT_CHUNK_SIZE)
         chunk_number = 0
+        print(f"--> Started uploading {os.path.basename(file)}!")
         while True:
+            print(f"\r--> {chunk_number/total_chunks}% uploaded...", end='')
             chunk = f.read(default_chunk_size)
             chunk_size = len(chunk)
             if chunk_size == 0:
