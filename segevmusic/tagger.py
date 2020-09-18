@@ -38,6 +38,7 @@ class Tagger:
         new_path = self.generate_good_path(amsong)
         rename(self.generate_isrc_path(amsong), new_path)
         self.path = new_path
+        return self.path
 
     def generate_isrc_path(self, amsong):
         return join(self.path, f"{amsong.isrc}.mp3")
