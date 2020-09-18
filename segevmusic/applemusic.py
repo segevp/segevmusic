@@ -8,7 +8,8 @@ Release: {release_date}
 Artwork: {artwork_url}"""
 SONG_SEARCH_LIMIT = 1
 ALBUM_SEARCH_LIMIT = 3
-AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/search.json?types=songs,albums&term={name}&limit={limit}&l={language}"
+AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/" \
+           r"search.json?types=songs,albums&term={name}&limit={limit}&l={language}"
 
 
 class AMObject:
@@ -113,7 +114,7 @@ class AMAlbum(AMObject):
 
 class AMFunctions:
     @staticmethod
-    def query(name, limit=SONG_SEARCH_LIMIT, language='en'):
+    def query(name, limit, language='en'):
         query = AM_QUERY.format(name=name.replace(' ', '+'), limit=limit, language=language)
         json = get(query).json()
         return json
@@ -163,7 +164,7 @@ class AMFunctions:
         search = input("--> Enter song name (+ Artist): ")
         # Set song language
         language = 'he' if has_hebrew(search) else 'en'
-        query_results = cls.query(search, language=language)
+        query_results = cls.query(search, limit=SONG_SEARCH_LIMIT, language=language)
         # Run query
         song = cls.choose_song(query_results)
         # Attach album metadata
