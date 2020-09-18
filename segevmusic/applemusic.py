@@ -159,12 +159,12 @@ class AMFunctions:
         return 1
 
     @classmethod
-    def search_song(cls):
+    def search_song(cls, limit=None):
         # Search
         search = input("--> Enter song name (+ Artist): ")
         # Set song language
         language = 'he' if has_hebrew(search) else 'en'
-        query_results = cls.query(search, limit=SONG_SEARCH_LIMIT, language=language)
+        query_results = cls.query(search, limit=SONG_SEARCH_LIMIT if not limit else limit, language=language)
         # Run query
         song = cls.choose_song(query_results)
         # Attach album metadata
