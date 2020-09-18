@@ -79,13 +79,13 @@ class WTSession(requests.Session):
         file_name = os.path.basename(file)
         total_chunks = round(os.path.getsize(file) / WETRANSFER_DEFAULT_CHUNK_SIZE)
         chunk_number = 0
-        print(f"--> Started uploading {file_name}!")
+        print(f"--> Started uploading {file_name}...")
         while True:
             print(f"\r--> {chunk_number / total_chunks * 100}% uploaded...", end='')
             chunk = f.read(default_chunk_size)
             chunk_size = len(chunk)
             if chunk_size == 0:
-                print(f"\r--> Finished uploading {file_name}")
+                print(f"\r--> Finished uploading {file_name}.")
                 break
             chunk_number += 1
 
