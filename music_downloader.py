@@ -44,7 +44,9 @@ def main(songs_path='./Songs'):
             continue
         song_file = tag_song(song, tagger)
         songs_files.append(song_file)
-    WTSession().upload(songs_files, f"Your {len(songs_files)} songs!")
+    wt_link = WTSession().upload(songs_files, f"Your {len(songs_files)} songs!")
+    print("--> DONE!")
+    print(f"--> Your download is available at {wt_link} and {songs_path}")
     rmtree('./config', ignore_errors=True)
 
 
