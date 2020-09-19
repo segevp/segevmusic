@@ -13,6 +13,11 @@ AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/" \
 
 
 class AMObject:
+    """
+    A class for handling Apple Music API's mutual attributes for
+    Songs and Album objects.
+    """
+
     def __init__(self, json=None):
         self.json = json
 
@@ -33,7 +38,7 @@ class AMObject:
         return self.json['attributes']['artwork']['url']
 
     @property
-    def is_explicit(self):
+    def is_explicit(self) -> bool:
         if 'contentRating' in self.json['attributes']:
             return self.json['attributes']['contentRating'] == 'explicit'
         return False
@@ -54,11 +59,18 @@ class AMObject:
     def url(self):
         return self.json['attributes']['url']
 
-    def get_artwork(self, w=ARTWORK_EMBED_SIZE, h=ARTWORK_EMBED_SIZE):
+    def get_artwork(self, w: int = ARTWORK_EMBED_SIZE, h: int = ARTWORK_EMBED_SIZE) -> bytes:
+        """
+        Returns the bytes of the artwork, with the given width and height.
+        """
         return get(self.artwork_url.format(w=w, h=h)).content
 
 
 class AMSong(AMObject):
+    """
+    A class for handling Apple Music API's Song object.
+    """
+
     def __init__(self, json):
         super().__init__(json)
         self.album = AMAlbum()
@@ -77,9 +89,15 @@ class AMSong(AMObject):
 
     @property
     def preview(self):
+        """
+        Returns the link for the song's audio preview.
+        """
         return self.json['attributes']['previews'][0]['url']
 
-    def album_id_from_song_url(self):
+    def album_id_from_song_url(self) -> str:
+        """
+        Returns the song's album id.
+        """
         return self.url.split('/')[-1].split('?')[0]
 
     def __str__(self):
@@ -90,6 +108,10 @@ class AMSong(AMObject):
 
 
 class AMAlbum(AMObject):
+    """
+    A class for handling Apple Music API's Album object.
+    """
+
     def __init__(self, json=None):
         super().__init__(json)
 
@@ -113,14 +135,26 @@ class AMAlbum(AMObject):
 
 
 class AMFunctions:
+    """
+    A functions toolbox for using Apple Music's API and Song/Album objects.
+    """
+
     @staticmethod
-    def query(name, limit, language='en'):
+    def query(name: str, limit: int, language: str = 'en') -> dict:
+        """
+        Query Apple Music with the given string, search limit and response language.
+        Returns the response json
+        """
         query = AM_QUERY.format(name=name.replace(' ', '+'), limit=limit, language=language)
         json = get(query).json()
         return json
 
     @staticmethod
-    def choose_song(json):
+    def choose_song(json: dict) -> AMSong:
+        """
+        Returns interactively chosen desired song, or automatically if only one result.
+        Options are taken from the given results json.
+        """
         index = 0
         songs = [AMSong(song_json) for song_json in json['songs']['data']]
         print("--> Choose the correct song:")
@@ -131,7 +165,11 @@ class AMFunctions:
         return songs[chosen_index]
 
     @classmethod
-    def attach_album(cls, amsong, language):
+    def attach_album(cls, amsong: AMSong, language: str) -> int:
+        """
+        Attaching AMAlbum object to a given AMSong's album attribute.
+        Returns 0 if succeed, and 1 otherwise.
+        """
         wanted_album_id = amsong.album_id_from_song_url()
         results = cls.query(amsong.artist_name + ' ' + amsong.album_name, ALBUM_SEARCH_LIMIT, language)
         for album in results['albums']['data']:
@@ -149,7 +187,12 @@ class AMFunctions:
         return 1
 
     @classmethod
-    def translate_song(cls, amsong):
+    def translate_song(cls, amsong: AMSong) -> int:
+        """
+        If a language that's not english was chosen for metadata,
+        translates genres to English.
+        Returns 0 if succeed, and 1 otherwise.
+        """
         wanted_song_id = amsong.id
         results = cls.query(amsong.artist_name + ' ' + amsong.album_name, SONG_SEARCH_LIMIT)
         for song in results['songs']['data']:
@@ -159,7 +202,12 @@ class AMFunctions:
         return 1
 
     @classmethod
-    def search_song(cls, name, limit=SONG_SEARCH_LIMIT):
+    def search_song(cls, name, limit=SONG_SEARCH_LIMIT) -> AMSong or None:
+        """
+        Querying Apple Music with given limit for a given name, determines
+        the song's language, prompts user for choosing the correct song,
+        attaches the song the album's object and returns the AMSong object.
+        """
         # Set song language
         language = 'he' if has_hebrew(name) else 'en'
         query_results = cls.query(name, limit=limit, language=language)

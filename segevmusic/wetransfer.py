@@ -22,6 +22,10 @@ WETRANSFER_DEFAULT_CHUNK_SIZE = 5242880
 
 
 class WTSession(requests.Session):
+    """
+    A class for handling WeTransfer sessions.
+    """
+
     def __init__(self):
         super().__init__()
         self.prepare_session()
@@ -115,6 +119,10 @@ class WTSession(requests.Session):
         return r.json()
 
     def upload(self, files: List[str], message: str = '') -> str:
+        """
+        Upload given files to wetransfer.com.
+        Return the shortened link.
+        """
         # Check that all files exists
         for f in files:
             if not os.path.exists(f):

@@ -2,6 +2,8 @@ from os.path import realpath, join
 from deemix.app.cli import cli
 from deemix.app.settings import Settings
 from segevmusic import overriders
+from segevmusic.applemusic import AMSong
+from typing import List
 
 DEEZER_ISRC_QUERY = r"https://api.deezer.com/2.0/track/isrc:{isrc}"
 ARL = r"5bbd39c9df0b86568f46c9310cb61f4c9c3e3a1cef78b0a5e142066dca8c1ea495edea03cbb1536a5ba1fd2cff9b15fe21114d221140b57e0ab96484d4a1f4d0acbbfe66af7587a8f2af59ebeb5036c7d09bd1d8ad936f4da1b9c1ed6af46e21"
@@ -12,12 +14,22 @@ Settings.__init__ = overriders.settings_init
 
 
 class DeezerFunctions:
+    """
+    A functions toolbox for using Deezer and deemix.
+    """
+
     @staticmethod
-    def amsong_to_url(amsong):
+    def amsong_to_url(amsong: AMSong) -> str:
+        """
+        Generates and returns deezer link for a given AMSong object (using ISRC).
+        """
         return DEEZER_ISRC_QUERY.format(isrc=amsong.isrc)
 
     @staticmethod
-    def login(songs_path=None, arl=ARL):
+    def login(songs_path: str = None, arl: str = ARL):
+        """
+        Initializing Deezer session.
+        """
         localpath = realpath('.')
         config_folder = join(localpath, 'config')
         songs_folder = realpath(songs_path) if songs_path else join(localpath, 'Songs')
@@ -26,5 +38,8 @@ class DeezerFunctions:
         return app
 
     @staticmethod
-    def download(url, app):
-        app.downloadLink([url])
+    def download(urls: List[str], app: cli):
+        """
+        Downloads given deezer links.
+        """
+        app.downloadLink(urls)

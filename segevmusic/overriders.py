@@ -11,6 +11,9 @@ logger = logging.getLogger('deemix')
 
 
 def settings_init(self, configFolder):
+    """
+    Modified default settings.
+    """
     self.settings = {}
     self.configFolder = configFolder
     self.defaultSettings = {
@@ -132,6 +135,9 @@ def settings_init(self, configFolder):
 
 
 def cli_login(self, arl=None):
+    """
+    Added the ability to add arl argument, without prompting user input.
+    """
     logged_in = 0
     config_folder = self.set.configFolder
     if not isdir(config_folder):

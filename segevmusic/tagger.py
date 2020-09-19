@@ -1,6 +1,8 @@
 from mutagen.id3 import ID3, TXXX, TIT2, TPE1, TALB, TPE2, TCON, TPUB, TSRC, APIC, TCOP, TDRC
 from os import replace
 from os.path import realpath, join
+from segevmusic.applemusic import AMSong
+from typing import List
 
 TAGS = {
     "song_name": lambda amsong: TIT2(text=amsong.name),
@@ -19,10 +21,20 @@ ERROR_MSG = "Failed tags: {tags}"
 
 
 class Tagger:
+    """
+    A class for handling songs metadata.
+    """
+
     def __init__(self, path):
         self.path = realpath(path)
 
-    def tag_song(self, amsong):
+    def tag_song(self, amsong: AMSong):
+        """
+        Tags ID3 metadata using the TAGS constant and saves changes.
+        Prints errors afterwards
+        :param amsong:
+        :return:
+        """
         file_path = self.generate_isrc_path(amsong)
         id3 = ID3(file_path)
         errors = []
@@ -34,19 +46,34 @@ class Tagger:
         id3.save(v1=2, v2_version=3, v23_sep='/')
         self.print_errors(errors)
 
-    def rename_isrc_path(self, amsong):
+    def rename_isrc_path(self, amsong: AMSong) -> str:
+        """
+        Renaming song's isrc filename to the output of 'generate_good_path' function
+        and retuns the new path
+        """
         new_path = self.generate_good_path(amsong)
         replace(self.generate_isrc_path(amsong), new_path)
         return new_path
 
-    def generate_isrc_path(self, amsong):
+    def generate_isrc_path(self, amsong: AMSong) -> str:
+        """
+        Returns the given song's ISRC path.
+        """
         return join(self.path, f"{amsong.isrc}.mp3")
 
-    def generate_good_path(self, amsong):
+    def generate_good_path(self, amsong: AMSong) -> str:
+        """
+        Return the given song's "good" path - in the format:
+        "<artist name> - <song name>.mp3"
+        """
         return join(self.path, f"{amsong.artist_name} - {amsong.name}.mp3")
 
     @staticmethod
-    def print_errors(errors):
+    def print_errors(errors: List[str]):
+        """
+        Prints any given errors except when it's only an error with
+        the iTunes Advisory tag.
+        """
         advisory = "itunes_advisory"
         if advisory in errors:
             errors.remove(advisory)
