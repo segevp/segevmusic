@@ -6,8 +6,8 @@ from segevmusic.deezer import DeezerFunctions
 from segevmusic.wetransfer import WTSession
 from segevmusic.utils import ask
 from shutil import rmtree
-from sys import argv
 from os.path import exists
+from argparse import ArgumentParser
 
 
 def main(songs_path='./Songs'):
@@ -49,7 +49,16 @@ def main(songs_path='./Songs'):
 
 
 if __name__ == '__main__':
-    if len(argv) == 2:
-        main(argv[1])
-    else:
-        main()
+    # if len(argv) == 2:
+    #     main(argv[1])
+    # else:
+    #     main()
+    parser = ArgumentParser()
+    parser.add_argument("-u", "--upload", help="upload songs to wetransfer", action="store_true")
+    parser.add_argument("path", help="songs download path", nargs='?', default='./Songs')
+    parser.add_argument("-m", "--manual", help="manual song selection, max 5 options", type=int,
+                        choices=list(range(1, 6)), default=1)
+    args = parser.parse_args()
+    print(args)
+
+    main(args.path)
