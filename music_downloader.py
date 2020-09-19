@@ -22,9 +22,9 @@ def get_args():
 
 
 def main():
-    songs_path, query_limit, upload, list_path = get_args()
-    app = DeezerFunctions.login(songs_path)
-    tagger = Tagger(songs_path)
+    download_path, query_limit, to_upload, list_path = get_args()
+    app = DeezerFunctions.login(download_path)
+    tagger = Tagger(download_path)
     songs = []
     songs_files = []
     to_continue = True
@@ -53,9 +53,9 @@ def main():
         # Rename song file name
         song_file = tagger.rename_isrc_path(song)
         songs_files.append(song_file)
-    print(f"--> Your download is available at {songs_path}!")
+    print(f"--> Your download is available at {download_path}!")
     # Upload files to WeTransfer
-    if upload:
+    if to_upload:
         wt_link = WTSession().upload(songs_files, f"Your {len(songs_files)} songs!")
         print(f"--> Your download is available at {wt_link}")
     # Remove deemix config files
