@@ -10,13 +10,6 @@ from sys import argv
 from os.path import exists
 
 
-def tag_song(song, tagger):
-    # Tag metadata
-    tagger.tag_song(song)
-    # Rename 'isrc.mp3 to %artist% - %name% template'
-    return tagger.rename_isrc_path(song)
-
-
 def main(songs_path='./Songs'):
     app = DeezerFunctions.login(songs_path)
     tagger = Tagger(songs_path)
@@ -42,11 +35,16 @@ def main(songs_path='./Songs'):
         if not exists(song_path):
             print(f"--> ERROR: Song {song.name} was not downloaded!")
             continue
-        song_file = tag_song(song, tagger)
+        # Tag song
+        tagger.tag_song(song)
+        # Rename song file name
+        song_file = tagger.rename_isrc_path(song)
         songs_files.append(song_file)
+    # Upload files to WeTransfer
     wt_link = WTSession().upload(songs_files, f"Your {len(songs_files)} songs!")
     print("--> DONE!")
     print(f"--> Your download is available at {wt_link} and {songs_path}")
+    # Remove deemix config files
     rmtree('./config', ignore_errors=True)
 
 
