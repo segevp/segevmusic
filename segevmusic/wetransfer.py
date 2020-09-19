@@ -18,7 +18,7 @@ PUT_JSON = {
 }
 CSRF_REGEX = 'name="csrf-token" content="([^"]+)"'
 
-WETRANSFER_DEFAULT_CHUNK_SIZE = 2097152
+WETRANSFER_DEFAULT_CHUNK_SIZE = 5242880
 
 
 class WTSession(requests.Session):
