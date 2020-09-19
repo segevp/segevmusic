@@ -10,7 +10,18 @@ from os.path import exists
 from argparse import ArgumentParser
 
 
-def main(songs_path, upload, query_limit):
+def get_args():
+    parser = ArgumentParser()
+    parser.add_argument("path", help="songs download path", nargs='?', default='./Songs')
+    parser.add_argument("-u", "--upload", help="upload songs to wetransfer", action="store_true")
+    parser.add_argument("-m", "--manual", help="manual song selection, max 5 options", type=int,
+                        choices=list(range(1, 6)), default=1)
+    args = parser.parse_args()
+    return args.path, args.manual, args.upload
+
+
+def main():
+    songs_path, query_limit, upload = get_args()
     app = DeezerFunctions.login(songs_path)
     tagger = Tagger(songs_path)
     songs = []
@@ -51,12 +62,4 @@ def main(songs_path, upload, query_limit):
 
 
 if __name__ == '__main__':
-    parser = ArgumentParser()
-    parser.add_argument("path", help="songs download path", nargs='?', default='./Songs')
-    parser.add_argument("-u", "--upload", help="upload songs to wetransfer", action="store_true")
-    parser.add_argument("-m", "--manual", help="manual song selection, max 5 options", type=int,
-                        choices=list(range(1, 6)), default=1)
-    args = parser.parse_args()
-    print(args)
-
-    main(args.path, args.upload, args.manual)
+    main()
