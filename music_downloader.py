@@ -16,12 +16,13 @@ def get_args():
     parser.add_argument("-u", "--upload", help="upload songs to wetransfer", action="store_true")
     parser.add_argument("-m", "--manual", help="manual song selection, max 5 options", type=int,
                         choices=list(range(1, 6)), default=1)
+    parser.add_argument("-f", "--file", help="load a file with songs list", type=str)
     args = parser.parse_args()
-    return args.path, args.manual, args.upload
+    return args.path, args.manual, args.upload, args.file
 
 
 def main():
-    songs_path, query_limit, upload = get_args()
+    songs_path, query_limit, upload, list_path = get_args()
     app = DeezerFunctions.login(songs_path)
     tagger = Tagger(songs_path)
     songs = []
@@ -30,7 +31,8 @@ def main():
     # Adding songs
     while to_continue:
         try:
-            songs.append(AMFunctions.search_song(limit=query_limit))
+            name = input("--> Enter song name (+ Artist): ")
+            songs.append(AMFunctions.search_song(name, query_limit))
         except KeyError:
             print("--> ERROR: Nothing found; Check spelling errors.")
             continue
