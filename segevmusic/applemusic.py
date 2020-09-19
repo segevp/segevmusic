@@ -7,7 +7,7 @@ AMSONG_REPR = """Song: {name} // Artist: {artist_name} // Album: {album_name}{ex
 Release: {release_date}
 Artwork: {artwork_url}"""
 SONG_SEARCH_LIMIT = 1
-ALBUM_SEARCH_LIMIT = 3
+ALBUM_SEARCH_LIMIT = 5
 AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/" \
            r"search.json?types=songs,albums&term={name}&limit={limit}&l={language}"
 
@@ -139,8 +139,8 @@ class AMFunctions:
                 amsong.album = AMAlbum(album)
                 return 0
         print(f"--> WARNING: Failed fetching album metadata for {amsong.name}. Trying again...")
-        results = cls.query(amsong.album_name, 5, language)
-        for album in results['albums']['data']:
+        results = cls.query(amsong.album_name, 10, language)
+        for album in results['albums']['data'][ALBUM_SEARCH_LIMIT:]:
             if album['id'] == wanted_album_id:
                 amsong.album = AMAlbum(album)
                 print("--> SUCCESS: Fetched album metadata successfully")
