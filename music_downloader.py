@@ -30,7 +30,7 @@ def main():
     # Adding songs
     while to_continue:
         try:
-            songs.append(AMFunctions.search_song(query_limit))
+            songs.append(AMFunctions.search_song(limit=query_limit))
         except KeyError:
             print("--> ERROR: Nothing found; Check spelling errors.")
             continue
