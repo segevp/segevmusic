@@ -10,7 +10,7 @@ from os.path import exists
 from argparse import ArgumentParser
 
 
-def main(songs_path):
+def main(songs_path, upload, query_limit):
     app = DeezerFunctions.login(songs_path)
     tagger = Tagger(songs_path)
     songs = []
@@ -19,7 +19,7 @@ def main(songs_path):
     # Adding songs
     while to_continue:
         try:
-            songs.append(AMFunctions.search_song())
+            songs.append(AMFunctions.search_song(query_limit))
         except KeyError:
             print("--> ERROR: Nothing found; Check spelling errors.")
             continue
@@ -40,25 +40,23 @@ def main(songs_path):
         # Rename song file name
         song_file = tagger.rename_isrc_path(song)
         songs_files.append(song_file)
+    print(f"--> Your download is available at {songs_path}!")
     # Upload files to WeTransfer
-    wt_link = WTSession().upload(songs_files, f"Your {len(songs_files)} songs!")
-    print("--> DONE!")
-    print(f"--> Your download is available at {wt_link} and {songs_path}")
+    if upload:
+        wt_link = WTSession().upload(songs_files, f"Your {len(songs_files)} songs!")
+        print(f"--> Your download is available at {wt_link}")
     # Remove deemix config files
     rmtree('./config', ignore_errors=True)
+    print("--> DONE!")
 
 
 if __name__ == '__main__':
-    # if len(argv) == 2:
-    #     main(argv[1])
-    # else:
-    #     main()
     parser = ArgumentParser()
-    parser.add_argument("path", help="songs download path (default: './Songs')", nargs='?', default='./Songs')
+    parser.add_argument("path", help="songs download path", nargs='?', default='./Songs')
     parser.add_argument("-u", "--upload", help="upload songs to wetransfer", action="store_true")
     parser.add_argument("-m", "--manual", help="manual song selection, max 5 options", type=int,
                         choices=list(range(1, 6)), default=1)
     args = parser.parse_args()
     print(args)
 
-    main(args.path)
+    main(args.path, args.upload, args.manual)
