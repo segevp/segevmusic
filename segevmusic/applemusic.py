@@ -164,7 +164,11 @@ class AMFunctions:
         language = 'he' if has_hebrew(name) else 'en'
         query_results = cls.query(name, limit=limit, language=language)
         # Run query
-        song = cls.choose_song(query_results)
+        try:
+            song = cls.choose_song(query_results)
+        except KeyError:
+            print("--> ERROR: Nothing found; Check spelling errors.")
+            return None
         # Attach album metadata
         cls.attach_album(song, language)
         # Translate genres

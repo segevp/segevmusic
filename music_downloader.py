@@ -21,21 +21,26 @@ def get_args():
     return args.path, args.manual, args.upload, args.file
 
 
+def get_song_names(song_names_path):
+    with open(song_names_path, 'r') as f:
+        song_names = f.read().split('\n')
+        return filter(None, song_names)
+
+
 def main():
-    download_path, query_limit, to_upload, list_path = get_args()
+    download_path, query_limit, to_upload, song_names_path = get_args()
     app = DeezerFunctions.login(download_path)
     tagger = Tagger(download_path)
     songs = []
     songs_files = []
     to_continue = True
     # Adding songs
+    if song_names_path:
+        song_names = get_song_names(song_names_path)
     while to_continue:
-        try:
-            name = input("--> Enter song name (+ Artist): ")
-            songs.append(AMFunctions.search_song(name, query_limit))
-        except KeyError:
-            print("--> ERROR: Nothing found; Check spelling errors.")
-            continue
+        name = input("--> Enter song name (+ Artist): ")
+        chosen_song = AMFunctions.search_song(name, query_limit)
+        songs.append(chosen_song)
         to_continue = ask("--> Another song? (y/n): ")
     # Generate Deezer URLs
     songs_links = [DeezerFunctions.amsong_to_url(song) for song in songs]
