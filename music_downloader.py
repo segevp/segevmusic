@@ -4,7 +4,7 @@ from segevmusic.tagger import Tagger
 from segevmusic.applemusic import AMFunctions
 from segevmusic.deezer import DeezerFunctions
 from segevmusic.wetransfer import WTSession
-from segevmusic.utils import ask
+from segevmusic.utils import ask, get_lines
 from shutil import rmtree
 from os.path import exists, realpath
 from argparse import ArgumentParser
@@ -21,12 +21,6 @@ def get_args():
     return args.path, args.manual, args.upload, args.file
 
 
-def get_song_names(song_names_path):
-    with open(song_names_path, 'r') as f:
-        song_names = f.read().split('\n')
-        return filter(None, song_names)
-
-
 def main():
     download_path, query_limit, to_upload, song_names_path = get_args()
     app = DeezerFunctions.login(download_path)
@@ -37,7 +31,7 @@ def main():
     g = None
     # Create generator for song names
     if song_names_path:
-        g = (song_name for song_name in get_song_names(song_names_path))
+        g = (song_name for song_name in get_lines(song_names_path))
     # Add songs
     while to_continue:
         try:
