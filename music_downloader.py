@@ -6,7 +6,7 @@ from segevmusic.deezer import DeezerFunctions
 from segevmusic.wetransfer import WTSession
 from segevmusic.utils import ask
 from shutil import rmtree
-from os.path import exists
+from os.path import exists, realpath
 from argparse import ArgumentParser
 
 
@@ -66,7 +66,7 @@ def main():
         # Rename song file name
         song_file = tagger.rename_isrc_path(song)
         songs_files.append(song_file)
-    print(f"--> Your download is available at {download_path}!")
+    print(f"--> Your download is available at {realpath(download_path)}!")
     # Upload files to WeTransfer
     if to_upload:
         wt_link = WTSession().upload(songs_files, f"Your {len(songs_files)} songs!")

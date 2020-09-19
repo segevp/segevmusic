@@ -167,7 +167,7 @@ class AMFunctions:
         try:
             song = cls.choose_song(query_results)
         except KeyError:
-            print("--> ERROR: Nothing found; Check spelling errors.")
+            print(f"--> ERROR: Nothing found for '{name}'; Check spelling errors.")
             return None
         # Attach album metadata
         cls.attach_album(song, language)
