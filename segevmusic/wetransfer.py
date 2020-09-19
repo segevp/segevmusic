@@ -30,6 +30,7 @@ class WTSession(requests.Session):
         super().__init__()
         self.prepare_session()
         self.total_chunks = 0
+        self.current_chunk = 0
 
     def prepare_session(self):
         """Prepare a wetransfer.com session.
@@ -92,6 +93,7 @@ class WTSession(requests.Session):
                 print(f"\r--> Finished uploading {file_name}.")
                 break
             chunk_number += 1
+            self.current_chunk += 1
 
             j = {
                 "chunk_crc": crc32(chunk),
