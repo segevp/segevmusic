@@ -4,4 +4,4 @@ config/
 Songs/
 *.mp3
 .DS_Store
-.txt
+*.txt
