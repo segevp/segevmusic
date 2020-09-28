@@ -1,4 +1,4 @@
-from os.path import isdir, isfile, join
+from os.path import isdir, isfile, join, realpath
 from os import makedirs
 from deemix.app.settings import Settings
 import deemix.utils.localpaths as localpaths
@@ -8,7 +8,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('deemix')
 
 DEFAULT_SETTINGS = {
-    "downloadLocation": str(localpaths.getHomeFolder() / 'deemix Music'),
+    # "downloadLocation": str(localpaths.getHomeFolder() / 'deemix Music'),
+    "downloadLocation": join(realpath('~'), 'deemix Music'),
     "tracknameTemplate": "%isrc%",
     "albumTracknameTemplate": "%tracknumber% - %title%",
     "playlistTracknameTemplate": "%position% - %artist% - %title%",
