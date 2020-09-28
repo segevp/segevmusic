@@ -63,11 +63,11 @@ def main():
         # Rename song file name
         song_file = tagger.rename_isrc_path(song)
         songs_files.append(song_file)
-    print(f"--> Your download is available at {realpath(download_path)}!")
+    print(f"--> Your download is available at:\n{realpath(download_path)}!")
     # Upload files to WeTransfer
     if to_upload:
         wt_link = WTSession().upload(songs_files, f"Your {len(songs_files)} songs!")
-        print(f"--> Your download is available at {wt_link}")
+        print(f"--> Your download is available at:\n{wt_link}")
     # Remove deemix config files
     rmtree('./config', ignore_errors=True)
     print("--> DONE!")
