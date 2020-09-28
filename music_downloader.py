@@ -59,7 +59,7 @@ def main():
         # Rename song file name
         song_file = tagger.rename_isrc_path(song)
         songs_files.append(song_file)
-    print(f"--> Your download is available at:\n{realpath(download_path)}!")
+    print(f"--> Your download is available at:\n{realpath(download_path)}")
     # Upload files to WeTransfer
     if to_upload:
         wt_link = WTSession().upload(songs_files, f"Your {len(songs_files)} songs!")

@@ -8,7 +8,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('deemix')
 
 DEFAULT_SETTINGS = {
-    # "downloadLocation": str(localpaths.getHomeFolder() / 'deemix Music'),
     "downloadLocation": join(realpath('~'), 'deemix Music'),
     "tracknameTemplate": "%isrc%",
     "albumTracknameTemplate": "%tracknumber% - %title%",
