@@ -43,7 +43,10 @@ def main():
         chosen_song = AMFunctions.search_song(name, query_limit)
         songs.append(chosen_song)
         if not song_names_path:
-            to_continue = ask("--> Another song? (y/n): ")
+            try:
+                to_continue = ask("--> Another song? (y/n): ")
+            except KeyboardInterrupt:
+                pass
     # Generate Deezer URLs
     songs_links = [DeezerFunctions.amsong_to_url(song) for song in songs]
     # Download songs
