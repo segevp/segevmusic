@@ -37,13 +37,12 @@ def main():
         try:
             # Get song name interactively/from a file
             name = next(g) if g else input("--> Enter song name (+ Artist): ")
+            chosen_song = AMFunctions.search_song(name, query_limit)
+            songs.append(chosen_song)
+            if not song_names_path:
+                to_continue = ask("--> Another song? (y/n): ")
         except StopIteration:
             to_continue = False
-            continue
-        chosen_song = AMFunctions.search_song(name, query_limit)
-        songs.append(chosen_song)
-        if not song_names_path:
-            to_continue = ask("--> Another song? (y/n): ")
     # Generate Deezer URLs
     songs_links = [DeezerFunctions.amsong_to_url(song) for song in songs]
     # Download songs
