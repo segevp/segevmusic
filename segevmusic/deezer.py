@@ -1,6 +1,6 @@
 from os.path import realpath, join
 from deemix.app.cli import cli
-from deemix.app.settings import Settings
+from deemix.app.settings import Settings, DEFAULT_SETTINGS
 from segevmusic import overriders
 from segevmusic.applemusic import AMSong
 from typing import List

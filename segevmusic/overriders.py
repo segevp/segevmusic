@@ -1,8 +1,15 @@
 from os.path import isdir, isfile, join, realpath
 from os import makedirs
-from deemix.app.settings import Settings
+from deemix.app.settings import Settings, DEFAULT_SETTINGS
 import deemix.utils.localpaths as localpaths
 import logging
+
+from pathlib import Path
+import json
+import datetime
+import platform
+from os import listdir
+from deemix import __version__ as deemixVersion
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('deemix')
@@ -87,7 +94,52 @@ DEFAULT_SETTINGS = {
     }
 }
 
-settings_init = Settings.__init__
+
+def settings_init(self, configFolder=None):
+    self.settings = {}
+    self.configFolder = configFolder
+    if not self.configFolder:
+        self.configFolder = localpaths.getConfigFolder()
+    self.configFolder = Path(self.configFolder)
+
+    # Create config folder if it doesn't exsist
+    makedirs(self.configFolder, exist_ok=True)
+
+    # Create config file if it doesn't exsist
+    if not (self.configFolder / 'config.json').is_file():
+        with open(self.configFolder / 'config.json', 'w') as f:
+            json.dump(DEFAULT_SETTINGS, f, indent=2)
+
+    # Read config file
+    with open(self.configFolder / 'config.json', 'r') as configFile:
+        self.settings = json.load(configFile)
+
+    self.settingsCheck()
+
+    # Make sure the download path exsits
+    makedirs(self.settings['downloadLocation'], exist_ok=True)
+
+    # LOGFILES
+
+    # Create logfile name and path
+    logspath = self.configFolder / 'logs'
+    now = datetime.datetime.now()
+    logfile = now.strftime("%Y-%m-%d_%H%M%S") + ".log"
+    makedirs(logspath, exist_ok=True)
+
+    # Add handler for logging
+    fh = logging.FileHandler(logspath / logfile, 'w', 'utf-8')
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(logging.Formatter('%(asctime)s - [%(levelname)s] %(message)s'))
+    logger.addHandler(fh)
+    logger.info(f"{platform.platform(True, True)} - Python {platform.python_version()}, deemix {deemixVersion}")
+
+    # Only keep last 5 logfiles (to preserve disk space)
+    logslist = listdir(logspath)
+    logslist.sort()
+    if len(logslist) > 5:
+        for i in range(len(logslist) - 5):
+            (logspath / logslist[i]).unlink()
 
 
 def cli_login(self, arl=None):
