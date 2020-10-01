@@ -21,7 +21,8 @@ class MusicDownloader:
         self.app = DeezerFunctions.login(self.download_path)
         self.tagger = Tagger(self.download_path)
         self.songs = []
-        self.songs_files = []
+        self.downloaded_songs = []
+        self.wt_link = ''
 
     @staticmethod
     def get_args():
@@ -56,76 +57,54 @@ class MusicDownloader:
     def download(self):
         DeezerFunctions.download(self._generate_links(), self.app)
 
-    def _get_downloaded_songs(self):
-        downloaded_songs = []
-        for song in self.songs:
-            song_path = self.tagger.generate_isrc_path(song)
-            if not exists(song_path):
-                print(f"--> ERROR: Song {song.name} was not downloaded!")
-                continue
-            downloaded_songs.append(song)
-        return downloaded_songs
+    def update_downloaded_songs(self):
+        self.downloaded_songs = [song for song in self.songs if exists(self.tagger.generate_isrc_path(song))]
+        self._report_not_downloaded()
+
+    @property
+    def songs_files(self):
+        return [self.tagger.generate_good_path(song) for song in self.downloaded_songs]
+
+    def _report_not_downloaded(self):
+        for failed_song in set(self.songs) - set(self.downloaded_songs):
+            print(f"--> ERROR: Song {failed_song} was not downloaded!")
 
     def tag(self):
-        for song in self._get_downloaded_songs():
+        for song in self.downloaded_songs:
             self.tagger.tag_song(song)
 
     def rename(self):
-        for song in self._get_downloaded_songs():
+        for song in self.downloaded_songs:
             song_file = self.tagger.rename_isrc_path(song)
             self.songs_files.append(song_file)
 
     def upload(self):
-        wt_link = WTSession().upload(self.songs_files, f"Your {len(self.songs_files)} songs!")
-        print(f"--> Your download is available at:\n{wt_link}")
+        self.wt_link = WTSession().upload(self.songs_files, f"Your {len(self.songs_files)} songs!")
 
+    def show_availability(self):
+        print(f"--> Your download is available at:\n{realpath(self.download_path)}")
+        if self.to_upload:
+            print(f"--> Your download is available at:\n{self.wt_link}")
 
-# def main():
-#     downloader = MusicDownloader()
-#     to_continue = True
-#     g = None
-#     # Create generator for song names
-#     if downloader.file_path:
-#         g = (song_name for song_name in get_lines(downloader.file_path))
-#     # Add songs
-#     while to_continue:
-#         # Get song name interactively/from a file
-#         try:
-#             name = next(g) if g else input("--> Enter song name (+ Artist): ")
-#         except StopIteration:
-#             to_continue = False
-#             continue
-#         # Get song object
-#         chosen_song = AMFunctions.search_song(name, query_limit)
-#         songs.append(chosen_song)
-#         if not song_names_path:
-#             to_continue = ask("--> Another song? (y/n): ")
-#     # Generate Deezer URLs
-#     songs_links = [DeezerFunctions.amsong_to_url(song) for song in songs]
-#     # Download songs
-#     DeezerFunctions.download(songs_links, app)
-#     # Tagging songs
-#     for song in songs:
-#         # Check if song was downloaded
-#         song_path = tagger.generate_isrc_path(song)
-#         if not exists(song_path):
-#             print(f"--> ERROR: Song {song.name} was not downloaded!")
-#             continue
-#         # Tag song
-#         tagger.tag_song(song)
-#         # Rename song file name
-#         song_file = tagger.rename_isrc_path(song)
-#         songs_files.append(song_file)
-#     print(f"--> Your download is available at:\n{realpath(download_path)}")
-#     # Upload files to WeTransfer
-#     if to_upload:
-#         wt_link = WTSession().upload(songs_files, f"Your {len(songs_files)} songs!")
-#         print(f"--> Your download is available at:\n{wt_link}")
-#     # Remove deemix config files
-#     rmtree('./config', ignore_errors=True)
-#     print("--> DONE!")
+    def finish(self):
+        # Remove deemix config files
+        rmtree('./config', ignore_errors=True)
+        print("--> DONE!")
+
+    def run(self):
+        if self.file_path:
+            self.get_songs_file()
+        else:
+            self.get_songs_interactive()
+        self.download()
+        self.update_downloaded_songs()
+        self.tag()
+        self.rename()
+        if self.to_upload:
+            self.upload()
+        self.finish()
 
 
 if __name__ == '__main__':
-    # main()
-    pass
+    downloader = MusicDownloader()
+    downloader.run()
