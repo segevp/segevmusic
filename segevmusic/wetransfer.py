@@ -11,14 +11,13 @@ WETRANSFER_FILES_URL = WETRANSFER_API_URL + '/{transfer_id}/files'
 WETRANSFER_PART_PUT_URL = WETRANSFER_FILES_URL + '/{file_id}/part-put-url'
 WETRANSFER_FINALIZE_MPP_URL = WETRANSFER_FILES_URL + '/{file_id}/finalize-mpp'
 WETRANSFER_FINALIZE_URL = WETRANSFER_API_URL + '/{transfer_id}/finalize'
+WETRANSFER_DEFAULT_CHUNK_SIZE = 5242880
 
 PUT_JSON = {
     'Origin': WETRANSFER_URL,
     'Access-Control-Request-Method': 'PUT'
 }
 CSRF_REGEX = 'name="csrf-token" content="([^"]+)"'
-
-WETRANSFER_DEFAULT_CHUNK_SIZE = 5242880
 
 
 class WTSession(requests.Session):
@@ -84,13 +83,14 @@ class WTSession(requests.Session):
         f = open(file, 'rb')
         file_name = os.path.basename(file)
         chunk_number = 0
-        print(f"--> Started uploading {file_name}...")
         while True:
-            print("\r--> {0:.2f}% uploaded...".format(self.current_chunk * 100 / self.total_chunks), end='')
+            print(f"\r--> Started uploading {file_name}...",
+                  "\r--> {0:.2f}% uploaded...".format(self.current_chunk * 100 / self.total_chunks),
+                  sep='\n', end='')
             chunk = f.read(default_chunk_size)
             chunk_size = len(chunk)
             if chunk_size == 0:
-                print(f"\r--> Finished uploading {file_name}.")
+                print(f"\n--> Finished uploading {file_name}.")
                 break
             chunk_number += 1
             self.current_chunk += 1
