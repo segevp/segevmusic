@@ -160,7 +160,7 @@ class AMFunctions:
         print("--> Choose the correct song:")
         # Multiple songs case (manual):
         for song in songs:
-            print(f"-- OPTION #{index + 1} --", song, sep='\n', end='\n\n')
+            print(f"{index + 1})", song, sep='\n', end='\n')
             index += 1
         chosen_index = int(input(f"--> What is your choice? (1-{index}) ")) - 1
         return songs[chosen_index]
