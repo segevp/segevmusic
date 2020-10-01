@@ -19,6 +19,8 @@ PUT_JSON = {
 }
 CSRF_REGEX = 'name="csrf-token" content="([^"]+)"'
 
+BIG_SPACE = 21 * ' '
+
 
 class WTSession(requests.Session):
     """
@@ -90,7 +92,7 @@ class WTSession(requests.Session):
             chunk = f.read(default_chunk_size)
             chunk_size = len(chunk)
             if chunk_size == 0:
-                print(f"\r--> Finished uploading {file_name}.")
+                print(f"\r--> Finished uploading {file_name}.", BIG_SPACE)
                 break
             chunk_number += 1
             self.current_chunk += 1
