@@ -1,4 +1,4 @@
-from typing import Iterator
+from typing import List
 
 BOOL_DICT = {'y': True, 'Y': True, 'yes': True, 'Yes': True,
              'n': False, 'N': False, 'no': False, 'No': False}
@@ -26,10 +26,10 @@ def has_hebrew(name: str) -> bool:
     return any("\u0590" <= letter <= "\u05EA" for letter in name)
 
 
-def get_lines(song_names_path: str) -> Iterator[str]:
+def get_lines(song_names_path: str) -> List[str]:
     """
     Returns the lines that are not empty of a given file path.
     """
     with open(song_names_path, 'r') as f:
         song_names = f.read().split('\n')
-        return filter(None, song_names)
+        return list(filter(None, song_names))
