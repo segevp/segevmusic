@@ -4,7 +4,7 @@ BOOL_DICT = {'y': True, 'Y': True, 'yes': True, 'Yes': True,
              'n': False, 'N': False, 'no': False, 'No': False}
 
 
-def ask(question: str, bool_dict: dict = BOOL_DICT, on_interrupt=True):
+def ask(question: str, bool_dict: dict = BOOL_DICT, on_interrupt=False):
     """
     Prints a given question on stdout and waits for user input.
     Keeps doing so until the answer is in the given dict's keys,
