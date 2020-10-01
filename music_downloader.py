@@ -102,6 +102,7 @@ class MusicDownloader:
         self.rename()
         if self.to_upload:
             self.upload()
+        self.show_availability()
         self.finish()
 
 
