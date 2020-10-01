@@ -155,7 +155,7 @@ class AMFunctions:
         songs = [AMSong(song_json) for song_json in json['songs']['data']]
         # One song case (automatic):
         if len(songs) == 1:
-            print(f"--> Found song:\n{songs[0]}\n")
+            print(f"--> Song chosen: {songs[0]}")
             return songs[0]
         print("--> Choose the correct song:")
         # Multiple songs case (manual):
