@@ -38,7 +38,8 @@ class MusicDownloader:
 
     def _add_song(self, name):
         chosen_song = AMFunctions.search_song(name, self.query_limit)
-        self.songs.append(chosen_song)
+        if chosen_song:
+            self.songs.append(chosen_song)
 
     def get_songs_interactive(self):
         to_continue = True
