@@ -146,7 +146,7 @@ class AMFunctions:
         return json
 
     @staticmethod
-    def choose_song(json: dict) -> AMSong:
+    def choose_song(json: dict, query_term: str) -> AMSong:
         """
         Returns interactively chosen desired song, or automatically if only one result.
         Options are taken from the given results json.
@@ -155,12 +155,12 @@ class AMFunctions:
         songs = [AMSong(song_json) for song_json in json['songs']['data']]
         # One song case (automatic):
         if len(songs) == 1:
-            print(f"--> Song chosen: {songs[0]}")
+            print(f"--> {songs[0]}")
             return songs[0]
-        print("--> Choose the correct song:")
+        print(f"--> Choose the correct song for {query_term}:")
         # Multiple songs case (manual):
         for song in songs:
-            print(f"{index + 1})", song, sep='\n', end='\n')
+            print(f"{index + 1})", song, end='\n')
             index += 1
         chosen_index = int(input(f"--> What is your choice? (1-{index}) ")) - 1
         return songs[chosen_index]
@@ -214,7 +214,7 @@ class AMFunctions:
         query_results = cls.query(name, limit=limit, language=language)
         # Run query
         try:
-            song = cls.choose_song(query_results)
+            song = cls.choose_song(query_results, name)
         except KeyError:
             print(f"--> ERROR: Nothing found for '{name}'; Check for spelling errors.")
             return None

@@ -2,24 +2,27 @@ from segevmusic.tagger import Tagger
 from segevmusic.applemusic import AMFunctions
 from segevmusic.deezer import DeezerFunctions
 from segevmusic.wetransfer import WTSession
-from segevmusic.utils import ask, get_lines
+from segevmusic.utils import ask, get_lines, get_indexes
 from shutil import rmtree
 from os.path import exists, realpath
 from argparse import ArgumentParser, Namespace
 from typing import List
+
+REQUERY_LIMIT = 5
 
 
 class MusicDownloader:
     def __init__(self):
         args = self.get_args()
         self.download_path = args.path
-        self.query_limit = args.manual
+        self.query_limit = 1  # args.manual
         self.to_upload = args.upload
         self.file_path = args.file
 
         self.app = DeezerFunctions.login(self.download_path)
         self.tagger = Tagger(self.download_path)
         self.songs = []
+        self.search_term = []
         self.downloaded_songs = []
         self.songs_files = []
         self.wt_link = ''
@@ -33,8 +36,8 @@ class MusicDownloader:
         parser = ArgumentParser()
         parser.add_argument("path", help="songs download path", nargs='?', default='./Songs')
         parser.add_argument("-u", "--upload", help="upload songs to wetransfer", action="store_true")
-        parser.add_argument("-m", "--manual", help="manual song selection, max 5 options", type=int,
-                            choices=list(range(1, 6)), default=1)
+        # parser.add_argument("-m", "--manual", help="manual song selection, max 5 options", type=int,
+        #                     choices=list(range(1, 6)), default=1)
         parser.add_argument("-f", "--file", help="load a file with songs list", type=str)
         args = parser.parse_args()
         return args
@@ -48,6 +51,7 @@ class MusicDownloader:
         chosen_song = AMFunctions.search_song(name, self.query_limit)
         if chosen_song:
             self.songs.append(chosen_song)
+            self.search_term.append(name)
 
     def get_songs_interactive(self):
         """
@@ -66,6 +70,32 @@ class MusicDownloader:
         """
         for song_name in get_lines(self.file_path):
             self._add_song(song_name)
+
+    def _list_songs(self):
+        count = 1
+        print("--> Chosen songs:")
+        for song in self.songs:
+            print(f"{count}) {song}")
+
+    def _requery(self, human_index: int):
+        """
+        Runs query with larger limit and asking user to choose the right song.
+        Replaces bad song with correct song in the songs attribute.
+        """
+        index = human_index - 1
+        bad_song = self.songs[index]
+        chosen_song = AMFunctions.search_song(self.search_term[index], REQUERY_LIMIT)
+        print(f"--> Replaced '{bad_song.artist_name} - {bad_song.name}' "
+              f"with '{chosen_song.artist_name} - {chosen_song.name}'")
+        self.songs[index] = chosen_song
+
+    def offer_fix(self):
+        self._list_songs()
+        correct = ask("--> Are the songs chosen correct (y/n)? ", on_interrupt=True)
+        if not correct:
+            bad_indexes = get_indexes(len(self.songs))
+            for bad_index in bad_indexes:
+                self._requery(bad_index)
 
     def _generate_links(self) -> List[str]:
         """
@@ -151,6 +181,7 @@ class MusicDownloader:
             self.get_songs_file()
         else:
             self.get_songs_interactive()
+        self.offer_fix()
         self.download()
         self.tag()
         self.rename()

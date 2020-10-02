@@ -33,3 +33,17 @@ def get_lines(song_names_path: str) -> List[str]:
     with open(song_names_path, 'r') as f:
         song_names = f.read().split('\n')
         return list(filter(None, song_names))
+
+
+def get_indexes(max_index, min_index=1):
+    """
+    Asking user for indexes input until they are in the min/max range.
+    Returns user chosen indexes.
+    """
+    correct_input = False
+    range_check = range(min_index, max_index + 1)
+    while not correct_input:
+        user_input = input(f"--> Enter wanted numbers between {min_index}-{max_index} (space/comma separated): ")
+        user_input = [int(index) for index in user_input.replace(',', ' ').split()]
+        correct_input = all([index in range_check for index in user_input])
+    return user_input
