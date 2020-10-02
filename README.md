@@ -20,7 +20,7 @@ At last it supports uploading downloaded files to WeTransfer! Useful if you use 
 Installation is as simple as a one line of code:
 
 ```bash
-python3 -m pip install git+ssh://git@github.com/segevp/music-downloader.git
+python3 -m pip install git+ssh://git@github.com/segevp/segevmusic.git
 ```
 
 ## Usage
