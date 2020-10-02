@@ -55,12 +55,13 @@ class MusicDownloader:
     def _generate_links(self):
         return [DeezerFunctions.amsong_to_url(song) for song in self.songs]
 
-    def download(self):
-        DeezerFunctions.download(self._generate_links(), self.app)
-
-    def update_downloaded_songs(self):
+    def _update_downloaded_songs(self):
         self.downloaded_songs = [song for song in self.songs if exists(self.tagger.generate_isrc_path(song))]
         self._report_not_downloaded()
+
+    def download(self):
+        DeezerFunctions.download(self._generate_links(), self.app)
+        self._update_downloaded_songs()
 
     @property
     def songs_files(self):
@@ -98,7 +99,6 @@ class MusicDownloader:
         else:
             self.get_songs_interactive()
         self.download()
-        self.update_downloaded_songs()
         self.tag()
         self.rename()
         if self.to_upload:
