@@ -3,7 +3,7 @@ from segevmusic.utils import has_hebrew
 
 ARTWORK_EMBED_SIZE = 1400
 ARTWORK_REPR_SIZE = 600
-AMSONG_REPR = """Song: {name} // Artist: {artist_name} // Album: {album_name}{explicit} // Released: ({release_date})"""
+AMSONG_REPR = """{name} // Artist: {artist_name} // Album: {album_name}{explicit} // Released: ({release_date})"""
 SONG_SEARCH_LIMIT = 1
 ALBUM_SEARCH_LIMIT = 5
 AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/" \
