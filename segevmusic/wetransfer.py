@@ -19,7 +19,7 @@ PUT_JSON = {
 }
 CSRF_REGEX = 'name="csrf-token" content="([^"]+)"'
 
-BIG_SPACE = 21 * ' '
+BIG_SPACE = 22 * ' '
 
 
 class WTSession(requests.Session):
