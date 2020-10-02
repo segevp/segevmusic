@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from segevmusic.tagger import Tagger
 from segevmusic.applemusic import AMFunctions
 from segevmusic.deezer import DeezerFunctions
@@ -161,7 +159,6 @@ class MusicDownloader:
         self.show_availability()
         self.finish()
 
-
-if __name__ == '__main__':
-    downloader = MusicDownloader()
-    downloader.run()
+# if __name__ == '__main__':
+#     downloader = MusicDownloader()
+#     downloader.run()
