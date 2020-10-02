@@ -14,7 +14,7 @@ At last it supports uploading downloaded files to WeTransfer! Useful if you use 
 
 ## Installation
 ### Pre-requisites
-- Python3.x
+- Python3.6 and higher
 - deemix (1.5.6)
 - mutagen
 
