@@ -19,6 +19,6 @@ setuptools.setup(
         "Development Status :: 4 - Beta",
         "Topic :: Multimedia :: Sound/Audio"
     ],
-    python_requires='>=3',
+    python_requires='>=3.6',
     install_requires=['deemix==1.5.6', 'mutagen']
 )
