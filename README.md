@@ -1,5 +1,5 @@
-# MusicDownload
-![Apple Music](https://www.apple.com/v/apple-music/m/images/overview/icon_apple_music__v9epn6m1oj6u_large.png) ![Deezer](https://lh3.googleusercontent.com/proxy/ZCUIQGxQ0Eov1tHKZ0xkRU8L3I48q6GkrysY-MGGQyXSUlil07AveIFqT62WOcnJrR2pthRGqsPgHXsbZlqWYVHhvTOnOEpboWiJztyhsiE9V5Tpv8qO6tZFtlFC4qwF3g =84x84)
+ # MusicDownloader 
+ <img src="https://camo.githubusercontent.com/5eda29273e871718abf8f4f7f4da48dbe677a7bb/68747470733a2f2f7777772e6170706c652e636f6d2f762f6170706c652d6d757369632f6d2f696d616765732f6f766572766965772f69636f6e5f6170706c655f6d757369635f5f763965706e366d316f6a36755f6c617267652e706e67" width="84" height="84">  <img src="https://camo.githubusercontent.com/3b1077909ce329af890a6820ceb78f9c77b15a4d/68747470733a2f2f6c68332e676f6f676c6575736572636f6e74656e742e636f6d2f70726f78792f5a4355495147785130456f763174484b5a30786b5255384c334934387136476b727973592d4d474751795853556c696c3037417665494671543632574f636e4a725232707468524771735067485873625a6c71575956486876544f6e4f4570626f57694a7a74796873694539563554707638714f36745a46746c4643347177463367" width="84" height="84">
 
 A python3 library to downloads songs using Deemix API and Apple Music's API for finding the songs and tagging ID3 metadata.
 
