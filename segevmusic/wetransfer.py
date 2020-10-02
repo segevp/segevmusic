@@ -3,6 +3,7 @@ from re import search
 from zlib import crc32
 import requests
 import os.path
+from math import ceil
 
 WETRANSFER_URL = 'https://wetransfer.com/'
 WETRANSFER_API_URL = WETRANSFER_URL + 'api/v4/transfers'
@@ -123,6 +124,9 @@ class WTSession(requests.Session):
 
         return r.json()
 
+    def num_chunks(self, f):
+        return ceil(self.file_name_and_size(f)['size'] / WETRANSFER_DEFAULT_CHUNK_SIZE)
+
     def upload(self, files: List[str], message: str = '') -> str:
         """
         Upload given files to wetransfer.com.
@@ -133,8 +137,7 @@ class WTSession(requests.Session):
             if not os.path.exists(f):
                 raise FileNotFoundError(f)
 
-        self.total_chunks = round(sum([one_file['size'] for one_file in
-                                       [self.file_name_and_size(f) for f in files]]) / WETRANSFER_DEFAULT_CHUNK_SIZE)
+        self.total_chunks = sum([self.num_chunks(f) for f in files])
 
         # Check that there are no duplicates filenames, despite possible different directories
         filenames = [os.path.basename(f) for f in files]
