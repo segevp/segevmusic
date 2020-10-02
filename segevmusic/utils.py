@@ -1,6 +1,6 @@
 from typing import List
 
-BOOL_DICT = {'y': True, 'Y': True, 'yes': True, 'Yes': True,
+BOOL_DICT = {'y': True, 'Y': True, 'yes': True, 'Yes': True, '': True,
              'n': False, 'N': False, 'no': False, 'No': False}
 
 
