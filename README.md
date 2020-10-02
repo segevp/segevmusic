@@ -25,7 +25,7 @@ python3 -m pip install git+ssh://git@github.com/segevp/music-downloader.git
 
 ## Usage
 ```
-music_downloader.py [-h] [-u] [-m {1,2,3,4,5}] [-f FILE] [path]
+segevmusic [-h] [-u] [-m {1,2,3,4,5}] [-f FILE] [path]
 
 positional arguments:
   path                  songs download path
