@@ -1,5 +1,5 @@
 # MusicDownload
-![Apple Music](https://www.apple.com/v/apple-music/m/images/overview/icon_apple_music__v9epn6m1oj6u_large.png) ![Deezer](https://lh3.googleusercontent.com/proxy/ZCUIQGxQ0Eov1tHKZ0xkRU8L3I48q6GkrysY-MGGQyXSUlil07AveIFqT62WOcnJrR2pthRGqsPgHXsbZlqWYVHhvTOnOEpboWiJztyhsiE9V5Tpv8qO6tZFtlFC4qwF3g = 84x84)
+![Apple Music](https://www.apple.com/v/apple-music/m/images/overview/icon_apple_music__v9epn6m1oj6u_large.png) ![Deezer](https://lh3.googleusercontent.com/proxy/ZCUIQGxQ0Eov1tHKZ0xkRU8L3I48q6GkrysY-MGGQyXSUlil07AveIFqT62WOcnJrR2pthRGqsPgHXsbZlqWYVHhvTOnOEpboWiJztyhsiE9V5Tpv8qO6tZFtlFC4qwF3g =84x84)
 
 A python3 library to downloads songs using Deemix API and Apple Music's API for finding the songs and tagging ID3 metadata.
 
