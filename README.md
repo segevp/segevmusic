@@ -1,4 +1,5 @@
 # MusicDownload
+![Apple Music](https://www.apple.com/v/apple-music/m/images/overview/icon_apple_music__v9epn6m1oj6u_large.png)
 A python3 library to downloads songs using Deemix API and Apple Music's API for finding the songs and tagging ID3 metadata.
 
 As for songs searching support:
