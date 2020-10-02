@@ -38,7 +38,7 @@ optional arguments:
   -f FILE, --file FILE  load a file with songs list
 ```
 
-SegevMusic can be run in multiple ways:
+**SegevMusic** can be run in multiple ways:
 #### From terminal (as a binary):
 ```bash
 segevmusic --help
