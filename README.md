@@ -1,8 +1,11 @@
 # MusicDownload
 A python3 library to downloads songs using Deemix API and Apple Music's API for finding the songs and tagging ID3 metadata.
 
-As for songs- it supports interactively searching for songs, loading songs from a file and automatic/manual song selection.
-At last it supports uploading downloaded files to WeTransfer! Useful if you use a remote server.
+As for songs searching support:
+- Interactively searching for songs
+- Loading song names from a file _(-f)_
+- Automatic/Manual song selection. _(-m)_
+At last it supports uploading downloaded files to WeTransfer! Useful if you use a remote server. _(-u)_
 
 ## Installation
 ### Pre-requisites
