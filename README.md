@@ -19,7 +19,7 @@ At last it supports uploading downloaded files to WeTransfer! Useful if you use 
 Installation is as simple as a one line of code:
 
 ```bash
-python3 -m pip install git+ssh://git@github.com/segevp/segevmusic.git
+pip3 install git+ssh://git@github.com/segevp/segevmusic.git
 ```
 
 <img src="https://camo.githubusercontent.com/c20f060672287e7fead8773e11a4e835f3326a21/687474703a2f2f7365676576666c69782e746b3a383030302f6f75742e676966"/>
