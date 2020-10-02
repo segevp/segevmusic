@@ -5,6 +5,7 @@ As for songs searching support:
 - Interactively searching for songs
 - Loading song names from a file _(-f)_
 - Automatic/Manual song selection. _(-m)_
+
 At last it supports uploading downloaded files to WeTransfer! Useful if you use a remote server. _(-u)_
 
 ## Installation
