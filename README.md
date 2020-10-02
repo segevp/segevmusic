@@ -3,6 +3,8 @@
 
 A python3 library to downloads songs using Deemix API and Apple Music's API for finding the songs and tagging ID3 metadata.
 
+<img src="https://camo.githubusercontent.com/c20f060672287e7fead8773e11a4e835f3326a21/687474703a2f2f7365676576666c69782e746b3a383030302f6f75742e676966"/>
+
 As for songs searching support:
 - Interactively searching for songs _(the default)_
 - Loading song names from a file _(-f)_
