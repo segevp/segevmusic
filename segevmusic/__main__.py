@@ -1,5 +1,4 @@
-from segevmusic.music_downloader import MusicDownloader
+from segevmusic.music_downloader import main
 
 if __name__ == '__main__':
-    downloader = MusicDownloader()
-    downloader.run()
+    main()

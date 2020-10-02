@@ -159,6 +159,14 @@ class MusicDownloader:
         self.show_availability()
         self.finish()
 
-# if __name__ == '__main__':
-#     downloader = MusicDownloader()
-#     downloader.run()
+
+def main():
+    """
+    For entry points.
+    """
+    downloader = MusicDownloader()
+    downloader.run()
+
+
+if __name__ == '__main__':
+    main()
