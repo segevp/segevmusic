@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="segevmusic",
-    version="1.2",
+    version="1.2.1",
     author="Segev Pavin",
     author_email="macsegev@gmail.com",
     description="Downloading with Deezer and tagging with Apple Music",

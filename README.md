@@ -6,12 +6,12 @@ A Python library to download songs using:
 - **Deezer API** for the downloading itself, using the [deemix](https://codeberg.org/RemixDev/deemix) library
 
 As for songs searching support:
+- Automatic song selection
 - Interactively searching for songs _(the default)_
 - Loading song names from a file _(-f)_
-- Automatic/Manual song selection. _(-m)_
+- Validation and modifying of chosen songs _(-c)_
 
-At last it supports uploading downloaded files to WeTransfer! Useful if you use a remote server. _(-u)_
-
+At last it supports uploading downloaded files to WeTransfer _(-u)_! Useful if you use a remote server.
 
 ## Installation
 > Requires Python3.6 and higher
@@ -26,7 +26,7 @@ pip3 install git+ssh://git@github.com/segevp/segevmusic.git
 
 ## Usage
 ```
-segevmusic [-h] [-u] [-m {1,2,3,4,5}] [-f FILE] [path]
+music_downloader.py [-h] [-u] [-f FILE] [-c] [path]
 
 positional arguments:
   path                  songs download path
@@ -34,8 +34,7 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -u, --upload          upload songs to wetransfer
-  -m {1,2,3,4,5}, --manual {1,2,3,4,5}
-                        manual song selection, max 5 options
+  -c, --check           ask for validation when done choosing songs
   -f FILE, --file FILE  load a file with songs list
 ```
 

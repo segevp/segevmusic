@@ -15,9 +15,9 @@ class MusicDownloader:
     def __init__(self):
         args = self.get_args()
         self.download_path = args.path
-        self.query_limit = 1  # args.manual
         self.to_upload = args.upload
         self.file_path = args.file
+        self.to_check = args.check
 
         self.app = DeezerFunctions.login(self.download_path)
         self.tagger = Tagger(self.download_path)
@@ -36,9 +36,8 @@ class MusicDownloader:
         parser = ArgumentParser()
         parser.add_argument("path", help="songs download path", nargs='?', default='./Songs')
         parser.add_argument("-u", "--upload", help="upload songs to wetransfer", action="store_true")
-        # parser.add_argument("-m", "--manual", help="manual song selection, max 5 options", type=int,
-        #                     choices=list(range(1, 6)), default=1)
         parser.add_argument("-f", "--file", help="load a file with songs list", type=str)
+        parser.add_argument("-c", "--check", help="ask for validation when done choosing songs", action="store_true")
         args = parser.parse_args()
         return args
 
@@ -48,7 +47,7 @@ class MusicDownloader:
         and adds song to the songs attribute
         :param name: The search term - name of song( + artist).
         """
-        chosen_song = AMFunctions.search_song(name, self.query_limit)
+        chosen_song = AMFunctions.search_song(name)
         if chosen_song:
             self.songs.append(chosen_song)
             self.search_term.append(name)
@@ -181,7 +180,8 @@ class MusicDownloader:
             self.get_songs_file()
         else:
             self.get_songs_interactive()
-        self.offer_fix()
+        if self.to_check:
+            self.offer_fix()
         self.download()
         self.tag()
         self.rename()
