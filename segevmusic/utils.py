@@ -45,7 +45,7 @@ def get_indexes(max_index, min_index=1) -> List[int]:
     user_input = []
     while not correct_input:
         user_input = input(
-            f"\n--> Enter wanted numbers between {min_index}-{max_index} (space/comma separated), or Return-key: ")
+            f"\n--> Enter songs ({min_index}-{max_index}), space/comma separated, or Return-key to continue: ")
         user_input = set(int(index) for index in user_input.replace(',', ' ').split())
         correct_input = all(index in range_check for index in user_input)
     return user_input
