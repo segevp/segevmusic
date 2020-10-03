@@ -49,3 +49,7 @@ def get_indexes(max_index, min_index=1) -> List[int]:
         user_input = set(int(index) for index in user_input.replace(',', ' ').split())
         correct_input = all(index in range_check for index in user_input)
     return user_input
+
+
+def newline():
+    print("\n")
