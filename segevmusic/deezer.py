@@ -19,13 +19,6 @@ class DeezerFunctions:
     """
 
     @staticmethod
-    def amsong_to_url(amsong: AMSong) -> str:
-        """
-        Generates and returns deezer link for a given AMSong object (using ISRC).
-        """
-        return DEEZER_ISRC_QUERY.format(isrc=amsong.isrc)
-
-    @staticmethod
     def login(songs_path: str = None, arl: str = ARL):
         """
         Initializing Deezer session.
@@ -38,8 +31,17 @@ class DeezerFunctions:
         return app
 
     @staticmethod
-    def download(urls: List[str], app: cli):
+    def _amsong_to_url(amsong: AMSong) -> str:
+        """
+        Generates and returns deezer link for a given AMSong object (using ISRC).
+        """
+        return DEEZER_ISRC_QUERY.format(isrc=amsong.isrc)
+
+    @classmethod
+    def download(cls, songs: List[AMSong], app: cli):
         """
         Downloads given deezer links.
         """
-        app.downloadLink(urls)
+        for song in songs:
+            print(f"--> Downloading {song.short_name}")
+            app.downloadLink([cls._amsong_to_url(song)])

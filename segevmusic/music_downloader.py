@@ -75,7 +75,7 @@ class MusicDownloader:
 
     def _list_songs(self):
         count = 1
-        print("--> Chosen songs:")
+        print("\n--> Chosen songs:")
         for song in self.songs:
             print(f"{count}) {song}")
             count += 1
@@ -88,24 +88,14 @@ class MusicDownloader:
         index = human_index - 1
         bad_song = self.songs[index]
         chosen_song = AMFunctions.search_song(self.search_term[index], REQUERY_LIMIT)
-        print(f"--> Replaced '{bad_song.artist_name} - {bad_song.name}' "
-              f"with '{chosen_song.artist_name} - {chosen_song.name}'")
+        print(f"--> Replaced '{bad_song.short_name}' with '{chosen_song.short_name}'")
         self.songs[index] = chosen_song
 
     def offer_fix(self):
         self._list_songs()
-        correct = ask("--> Are the songs chosen correct (y/n)? ", on_interrupt=True)
-        if not correct:
-            bad_indexes = get_indexes(len(self.songs))
-            for bad_index in bad_indexes:
-                self._requery(bad_index)
-
-    def _generate_links(self) -> List[str]:
-        """
-        Generates Deezer link for each song, using its ISRC code.
-        :return: List of Deezer links.
-        """
-        return [DeezerFunctions.amsong_to_url(song) for song in self.songs]
+        bad_indexes = get_indexes(len(self.songs))
+        for bad_index in bad_indexes:
+            self._requery(bad_index)
 
     def _update_downloaded_songs(self):
         """
@@ -120,7 +110,7 @@ class MusicDownloader:
         Downloads all of the songs by generating their links
         and updating downloaded songs afterwards.
         """
-        DeezerFunctions.download(self._generate_links(), self.app)
+        DeezerFunctions.download(self.songs, self.app)
         self._update_downloaded_songs()
 
     def _report_not_downloaded(self):

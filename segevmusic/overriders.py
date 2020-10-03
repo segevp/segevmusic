@@ -10,7 +10,7 @@ import platform
 from os import listdir
 from deemix import __version__ as deemixVersion
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger('deemix')
 
 DEFAULT_SETTINGS = {

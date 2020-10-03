@@ -57,6 +57,10 @@ class AMObject:
     def url(self):
         return self.json['attributes']['url']
 
+    @property
+    def short_name(self):
+        return f"{self.artist_name} - {self.name}"
+
     def get_artwork(self, w: int = ARTWORK_EMBED_SIZE, h: int = ARTWORK_EMBED_SIZE) -> bytes:
         """
         Returns the bytes of the artwork, with the given width and height.
