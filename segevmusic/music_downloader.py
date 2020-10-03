@@ -75,7 +75,7 @@ class MusicDownloader:
         for song_name in get_lines(self.file_path):
             self._add_song(song_name)
 
-    def _list_songs(self):
+    def list_songs(self):
         count = 1
         print("\n--> Chosen songs:\n")
         for song in self.songs:
@@ -94,7 +94,6 @@ class MusicDownloader:
         self.songs[index] = chosen_song
 
     def offer_fix(self):
-        self._list_songs()
         bad_indexes = get_indexes(len(self.songs))
         for bad_index in bad_indexes:
             self._requery(bad_index)
@@ -175,6 +174,7 @@ class MusicDownloader:
             self.get_songs_file()
         else:
             self.get_songs_interactive()
+        self.list_songs()
         if self.to_check:
             self.offer_fix()
         self.download()
