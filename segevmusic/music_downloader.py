@@ -21,6 +21,7 @@ class MusicDownloader:
 
         self.app = DeezerFunctions.login(self.download_path)
         self.tagger = Tagger(self.download_path)
+
         self.songs = []
         self.search_term = []
         self.downloaded_songs = []
@@ -61,10 +62,12 @@ class MusicDownloader:
         """
         to_continue = True
         while to_continue:
-            song_name = input("--> Enter song name (+ Artist): ")
+            song_name = input("--> Enter song name (+ Artist), or Return-key to start downloading: ")
+            if not song_name:
+                to_continue = False
+                continue
             if self._add_song(song_name):
                 print(f"--> {self.songs[-1]}")
-            to_continue = ask("--> Another song? (y/n): ")
 
     def get_songs_file(self):
         """
