@@ -1,8 +1,12 @@
+# settings_init dependencies
+import deemix.utils.localpaths as localpaths
+from deemix.api.deezer import TrackFormats
+from deemix.app.settings import OverwriteOption, FeaturesOption
 from os.path import isdir, isfile, join, realpath
 from os import makedirs
-import deemix.utils.localpaths as localpaths
 import logging
 
+# cli_login dependencies
 from pathlib import Path
 import json
 import datetime
@@ -10,10 +14,7 @@ import platform
 from os import listdir
 from deemix import __version__ as deemixVersion
 
-logging.basicConfig(level=logging.WARNING)
-logger = logging.getLogger('deemix')
-logger.setLevel(logging.WARN)
-
+# settings_init dependencies
 DEFAULT_SETTINGS = {
     "downloadLocation": join(realpath('.'), 'deemix Music'),
     "tracknameTemplate": "%isrc%",
@@ -32,13 +33,13 @@ DEFAULT_SETTINGS = {
     "paddingSize": "0",
     "illegalCharacterReplacer": "_",
     "queueConcurrency": 3,
-    "maxBitrate": "3",
+    "maxBitrate": str(TrackFormats.MP3_320),
     "fallbackBitrate": True,
     "fallbackSearch": False,
     "logErrors": True,
     "logSearched": False,
     "saveDownloadQueue": False,
-    "overwriteFile": "n",
+    "overwriteFile": OverwriteOption.DONT_OVERWRITE,
     "createM3U8File": False,
     "playlistFilenameTemplate": "playlist",
     "syncedLyrics": False,
@@ -56,7 +57,7 @@ DEFAULT_SETTINGS = {
     "removeAlbumVersion": False,
     "removeDuplicateArtists": False,
     "tagsLanguage": "",
-    "featuredToTitle": "0",
+    "featuredToTitle": FeaturesOption.NO_CHANGE,
     "titleCasing": "nothing",
     "artistCasing": "nothing",
     "executeCommand": "",
@@ -93,6 +94,9 @@ DEFAULT_SETTINGS = {
         "coverDescriptionUTF8": False
     }
 }
+logging.basicConfig(level=logging.WARNING)
+logger = logging.getLogger('deemix')
+logger.setLevel(logging.WARN)
 
 
 def settings_init(self, configFolder=None):

@@ -26,16 +26,16 @@ pip3 install git+ssh://git@github.com/segevp/segevmusic.git
 
 ## Usage
 ```
-music_downloader.py [-h] [-u] [-f FILE] [-c] [path]
+segevmusic [-h] [-f FILE] [-u] [-d] [path]
 
 positional arguments:
   path                  songs download path
 
 optional arguments:
   -h, --help            show this help message and exit
-  -u, --upload          upload songs to wetransfer
-  -c, --check           ask for validation when done choosing songs
   -f FILE, --file FILE  load a file with songs list
+  -u, --upload          upload songs to wetransfer
+  -d, --dont-validate   don't validate chosen songs
 ```
 
 **SegevMusic** can be run in multiple ways:

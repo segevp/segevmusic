@@ -4,7 +4,7 @@ from segevmusic.deezer import DeezerFunctions
 from segevmusic.wetransfer import WTSession
 from segevmusic.utils import get_lines, get_indexes, newline
 from shutil import rmtree
-from os.path import exists, realpath
+from os.path import realpath
 from argparse import ArgumentParser, Namespace
 
 REQUERY_LIMIT = 5
@@ -35,9 +35,10 @@ class MusicDownloader:
         """
         parser = ArgumentParser()
         parser.add_argument("path", help="songs download path", nargs='?', default='./Songs')
-        parser.add_argument("-u", "--upload", help="upload songs to wetransfer", action="store_true")
         parser.add_argument("-f", "--file", help="load a file with songs list", type=str)
-        parser.add_argument("-c", "--check", help="ask for validation when done choosing songs", action="store_true")
+        parser.add_argument("-u", "--upload", help="upload songs to wetransfer", action="store_true")
+        parser.add_argument("-d", "--dont-validate", help="don't validate chosen songs",
+                            action="store_false", dest='check')
         args = parser.parse_args()
         return args
 
@@ -103,7 +104,7 @@ class MusicDownloader:
         Checks which songs are found in the download folder and adds them to the
         'downloaded_songs' attribute.
         """
-        self.downloaded_songs = [song for song in self.songs if exists(self.tagger.generate_isrc_path(song))]
+        self.downloaded_songs = [song for song in self.songs if DeezerFunctions.song_exists(song, self.download_path)]
 
     def download(self):
         """
