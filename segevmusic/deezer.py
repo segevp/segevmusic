@@ -48,7 +48,6 @@ class DeezerFunctions:
         Downloads given deezer links.
         """
         download_path = app.set.settings['downloadLocation']
-        print("\n")
         for song in songs:
             print(f"--> Downloading '{song.short_name}'...", end='')
             app.downloadLink([cls._amsong_to_url(song)])

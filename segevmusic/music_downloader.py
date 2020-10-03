@@ -2,7 +2,7 @@ from segevmusic.tagger import Tagger
 from segevmusic.applemusic import AMFunctions
 from segevmusic.deezer import DeezerFunctions
 from segevmusic.wetransfer import WTSession
-from segevmusic.utils import get_lines, get_indexes
+from segevmusic.utils import get_lines, get_indexes, newline
 from shutil import rmtree
 from os.path import exists, realpath
 from argparse import ArgumentParser, Namespace
@@ -177,11 +177,14 @@ class MusicDownloader:
         self.list_songs()
         if self.to_check:
             self.offer_fix()
+        newline()
         self.download()
+        newline()
         self.tag()
         self.rename()
         if self.to_upload:
             self.upload()
+        newline()
         self.show_availability()
         self.finish()
 
