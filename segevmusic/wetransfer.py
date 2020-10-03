@@ -4,6 +4,7 @@ from zlib import crc32
 import requests
 import os.path
 from math import ceil
+from sys import stdout
 
 WETRANSFER_URL = 'https://wetransfer.com/'
 WETRANSFER_API_URL = WETRANSFER_URL + 'api/v4/transfers'
@@ -19,8 +20,6 @@ PUT_JSON = {
     'Access-Control-Request-Method': 'PUT'
 }
 CSRF_REGEX = 'name="csrf-token" content="([^"]+)"'
-
-BIG_SPACE = 22 * ' '
 
 
 class WTSession(requests.Session):
@@ -86,18 +85,20 @@ class WTSession(requests.Session):
         f = open(file, 'rb')
         file_name = os.path.basename(file)
         chunk_number = 0
+
         while True:
             chunk = f.read(default_chunk_size)
             chunk_size = len(chunk)
+            stdout.flush()
             if chunk_size == 0:
-                print(f"\r--> Finished uploading {file_name}.", BIG_SPACE)
+                print(f"\r--> Finished uploading {file_name}.")
                 break
+
             chunk_number += 1
             self.current_chunk += 1
-
             print("\r--> {0:.2f}% uploaded...".format(self.current_chunk * 100 / self.total_chunks),
                   f"Started uploading {file_name}...",
-                  sep=' \\ ', end='')
+                  sep=' // ', end='')
 
             j = {
                 "chunk_crc": crc32(chunk),

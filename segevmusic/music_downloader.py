@@ -105,7 +105,6 @@ class MusicDownloader:
         'downloaded_songs' attribute.
         """
         self.downloaded_songs = [song for song in self.songs if exists(self.tagger.generate_isrc_path(song))]
-        self._report_not_downloaded()
 
     def download(self):
         """
@@ -120,7 +119,7 @@ class MusicDownloader:
         Prints a message of the songs that weren't downloaded.
         """
         for failed_song in set(self.songs) - set(self.downloaded_songs):
-            print(f"--> ERROR: Song {failed_song} was not downloaded!")
+            print(f"--> ERROR: Song '{failed_song.short_name}' was not downloaded!")
 
     def tag(self):
         """
