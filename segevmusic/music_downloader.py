@@ -2,11 +2,10 @@ from segevmusic.tagger import Tagger
 from segevmusic.applemusic import AMFunctions
 from segevmusic.deezer import DeezerFunctions
 from segevmusic.wetransfer import WTSession
-from segevmusic.utils import ask, get_lines, get_indexes
+from segevmusic.utils import get_lines, get_indexes
 from shutil import rmtree
 from os.path import exists, realpath
 from argparse import ArgumentParser, Namespace
-from typing import List
 
 REQUERY_LIMIT = 5
 

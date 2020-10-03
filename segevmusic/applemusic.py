@@ -1,5 +1,5 @@
 from requests import get
-from segevmusic.utils import has_hebrew
+from segevmusic.utils import has_hebrew, ask
 
 ARTWORK_EMBED_SIZE = 1400
 ARTWORK_REPR_SIZE = 600
@@ -161,12 +161,14 @@ class AMFunctions:
         if len(songs) == 1:
             # print(f"--> {songs[0]}")
             return songs[0]
-        print(f"--> Choose the correct song for {query_term}:")
+        print(f"--> Choose the correct song for {query_term}:\n")
         # Multiple songs case:
         for song in songs:
             print(f"{index + 1})", song, end='\n')
             index += 1
-        chosen_index = int(input(f"--> What is your choice? (1-{index}) ")) - 1
+        # chosen_index = int(input(f"\n--> What is your choice? (1-{index}) ")) - 1
+        options = {str(i): i for i in range(1, index + 1)}
+        chosen_index = int(ask(f"\n--> What is your choice (1-{index})? ", bool_dict=options)) - 1
         return songs[chosen_index]
 
     @classmethod

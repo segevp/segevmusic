@@ -1,6 +1,6 @@
 from os.path import realpath, join
 from deemix.app.cli import cli
-from deemix.app.settings import Settings, DEFAULT_SETTINGS
+from deemix.app.settings import Settings
 from segevmusic import overriders
 from segevmusic.applemusic import AMSong
 from typing import List
@@ -43,5 +43,5 @@ class DeezerFunctions:
         Downloads given deezer links.
         """
         for song in songs:
-            print(f"--> Downloading {song.short_name}")
+            print(f"--> Downloading '{song.short_name}'...")
             app.downloadLink([cls._amsong_to_url(song)])

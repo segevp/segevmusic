@@ -12,6 +12,7 @@ from deemix import __version__ as deemixVersion
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger('deemix')
+logger.setLevel(logging.WARN)
 
 DEFAULT_SETTINGS = {
     "downloadLocation": join(realpath('.'), 'deemix Music'),
