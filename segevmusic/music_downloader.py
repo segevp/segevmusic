@@ -41,7 +41,7 @@ class MusicDownloader:
         args = parser.parse_args()
         return args
 
-    def _add_song(self, name: str):
+    def _add_song(self, name: str) -> int:
         """
         Querying Apple Music's API for given song name and query limit
         and adds song to the songs attribute
@@ -51,6 +51,8 @@ class MusicDownloader:
         if chosen_song:
             self.songs.append(chosen_song)
             self.search_term.append(name)
+            return 1
+        return 0
 
     def get_songs_interactive(self):
         """
@@ -60,7 +62,8 @@ class MusicDownloader:
         to_continue = True
         while to_continue:
             song_name = input("--> Enter song name (+ Artist): ")
-            self._add_song(song_name)
+            if self._add_song(song_name):
+                print(f"--> {self.songs[-1]}")
             to_continue = ask("--> Another song? (y/n): ")
 
     def get_songs_file(self):
@@ -75,6 +78,7 @@ class MusicDownloader:
         print("--> Chosen songs:")
         for song in self.songs:
             print(f"{count}) {song}")
+            count += 1
 
     def _requery(self, human_index: int):
         """

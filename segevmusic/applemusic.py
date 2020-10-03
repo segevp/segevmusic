@@ -153,12 +153,12 @@ class AMFunctions:
         """
         index = 0
         songs = [AMSong(song_json) for song_json in json['songs']['data']]
-        # One song case (automatic):
+        # One song case:
         if len(songs) == 1:
-            print(f"--> {songs[0]}")
+            # print(f"--> {songs[0]}")
             return songs[0]
         print(f"--> Choose the correct song for {query_term}:")
-        # Multiple songs case (manual):
+        # Multiple songs case:
         for song in songs:
             print(f"{index + 1})", song, end='\n')
             index += 1
