@@ -22,7 +22,7 @@ Installation is as simple as a one line of code:
 pip3 install git+ssh://git@github.com/segevp/segevmusic.git
 ```
 
-<img src="http://segevflix.tk:8000/a.gif"/>
+<img src="https://camo.githubusercontent.com/355adb6374f51d5c0fb084e709e7d3c09361c698/687474703a2f2f7365676576666c69782e746b3a383030302f612e676966"/>
 
 ## Usage
 ```
