@@ -19,6 +19,11 @@ At last it supports uploading downloaded files to WeTransfer _(-u)_! Useful if y
 Installation is as simple as a one line of code:
 
 ```bash
+pip3 install git+https://github.com/segevp/segevmusic.git
+```
+Or via SSH:
+
+```bash
 pip3 install git+ssh://git@github.com/segevp/segevmusic.git
 ```
 
