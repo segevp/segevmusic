@@ -6,6 +6,7 @@ ARTWORK_REPR_SIZE = 600
 AMSONG_REPR = """{name} // Artist: {artist_name} // Album: {album_name}{explicit} // Released: ({release_date})"""
 SONG_SEARCH_LIMIT = 1
 ALBUM_SEARCH_LIMIT = 5
+ALBUM_SECOND_SEARCH_LIMIT = 10
 AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/" \
            r"search.json?types=songs,albums&term={name}&limit={limit}&l={language}"
 
@@ -67,6 +68,9 @@ class AMObject:
         """
         return get(self.artwork_url.format(w=w, h=h)).content
 
+    def __bool__(self):
+        return bool(self.json)
+
 
 class AMSong(AMObject):
     """
@@ -102,9 +106,18 @@ class AMSong(AMObject):
         """
         return self.url.split('/')[-1].split('?')[0]
 
+    def get_artwork(self, w: int = ARTWORK_EMBED_SIZE, h: int = ARTWORK_EMBED_SIZE) -> bytes:
+        """
+        Returns the bytes of the artwork, with the given width and height.
+        If album metadata was not fetched, artwork will be returned from the song itself.
+        """
+        if self.album:
+            return get(self.artwork_url.format(w=w, h=h)).content
+        return super(AMSong, self).get_artwork(w, h)
+
     def __str__(self):
         return AMSONG_REPR.format(name=self.name, artist_name=self.artist_name, album_name=self.album_name,
-                                  release_date=self.release_date, explicit="\n(Explicit)" if self.is_explicit else '')
+                                  release_date=self.release_date, explicit=" (Explicit)" if self.is_explicit else '')
 
 
 class AMAlbum(AMObject):
@@ -166,7 +179,6 @@ class AMFunctions:
         for song in songs:
             print(f"{index + 1})", song, end='\n')
             index += 1
-        # chosen_index = int(input(f"\n--> What is your choice? (1-{index}) ")) - 1
         options = {str(i): i for i in range(1, index + 1)}
         chosen_index = ask(f"\n--> What is your choice (1-{index})? ", bool_dict=options) - 1
         return songs[chosen_index]
@@ -184,8 +196,8 @@ class AMFunctions:
                 amsong.album = AMAlbum(album)
                 return 0
         print(f"--> WARNING: Failed fetching album metadata for {amsong.name}. Trying again...")
-        results = cls.query(amsong.album_name, 10, language)
-        for album in results['albums']['data'][ALBUM_SEARCH_LIMIT:]:
+        results = cls.query(amsong.album_name, ALBUM_SECOND_SEARCH_LIMIT, language)
+        for album in results['albums']['data']:
             if album['id'] == wanted_album_id:
                 amsong.album = AMAlbum(album)
                 print("--> SUCCESS: Fetched album metadata successfully")

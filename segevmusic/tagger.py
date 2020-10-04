@@ -15,9 +15,9 @@ TAGS = {
     "song_artist": lambda amsong: TPE1(text=amsong.artist_name),
     "itunes_advisory": lambda amsong: TXXX(desc="ITUNESADVISORY", text="1") if amsong.is_explicit else None,
     "release_date": lambda amsong: TDRC(text=amsong.release_date),
-    "artwork": lambda amsong: APIC(mime='image/jpeg', desc='cover', data=amsong.album.get_artwork())
+    "artwork": lambda amsong: APIC(mime='image/jpeg', desc='cover', data=amsong.get_artwork())
 }
-ERROR_MSG = "Failed tags: {tags}"
+ERROR_MSG = "--> For '{song}' failed tagging: {tags}"
 
 
 class Tagger:
@@ -28,23 +28,23 @@ class Tagger:
     def __init__(self, path):
         self.path = realpath(path)
 
-    def tag_song(self, amsong: AMSong):
+    def tag_song(self, song: AMSong):
         """
         Tags ID3 metadata using the TAGS constant and saves changes.
         Prints errors afterwards
-        :param amsong:
+        :param song:
         :return:
         """
-        file_path = self.generate_isrc_path(amsong)
+        file_path = self.generate_isrc_path(song)
         id3 = ID3(file_path)
         errors = []
         for key, tag in TAGS.items():
             try:
-                id3.add(tag(amsong))
+                id3.add(tag(song))
             except:
                 errors.append(key)
         id3.save(v1=2, v2_version=3, v23_sep='/')
-        self.print_errors(errors)
+        self._print_errors(song, errors)
 
     def rename_isrc_path(self, amsong: AMSong) -> str:
         """
@@ -69,7 +69,7 @@ class Tagger:
         return join(self.path, f"{amsong.artist_name} - {amsong.name}.mp3")
 
     @staticmethod
-    def print_errors(errors: List[str]):
+    def _print_errors(song: AMSong, errors: List[str]):
         """
         Prints any given errors except when it's only an error with
         the iTunes Advisory tag.
@@ -78,4 +78,4 @@ class Tagger:
         if advisory in errors:
             errors.remove(advisory)
         if errors:
-            print(ERROR_MSG.format(tags=errors))
+            print(ERROR_MSG.format(song=song.short_name, tags=errors))
