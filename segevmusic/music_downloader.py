@@ -62,6 +62,7 @@ class MusicDownloader:
         """
         to_continue = True
         while to_continue:
+            newline()
             song_name = input("--> Enter song name (+ Artist), or Return-key to continue: ")
             if not song_name:
                 to_continue = False
@@ -78,7 +79,7 @@ class MusicDownloader:
 
     def list_songs(self):
         count = 1
-        print("\n--> Chosen songs:\n")
+        print("--> Chosen songs:\n")
         for song in self.songs:
             print(f"{count}) {song}")
             count += 1
@@ -175,6 +176,7 @@ class MusicDownloader:
             self.get_songs_file()
         else:
             self.get_songs_interactive()
+        newline()
         self.list_songs()
         if self.to_check:
             self.offer_fix()

@@ -16,7 +16,7 @@ def ask(question: str, bool_dict: dict = BOOL_DICT, on_interrupt=False):
             answer = input(question)
         except KeyboardInterrupt:
             return on_interrupt
-    return BOOL_DICT[answer]
+    return bool_dict[answer]
 
 
 def has_hebrew(name: str) -> bool:
@@ -43,9 +43,10 @@ def get_indexes(max_index, min_index=1) -> List[int]:
     correct_input = False
     range_check = range(min_index, max_index + 1)
     user_input = []
+    newline()
     while not correct_input:
         user_input = input(
-            f"\n--> Enter songs ({min_index}-{max_index}), space/comma separated, or Return-key to continue: ")
+            f"--> Enter songs ({min_index}-{max_index}), space/comma separated, or Return-key to continue: ")
         user_input = set(int(index) for index in user_input.replace(',', ' ').split())
         correct_input = all(index in range_check for index in user_input)
     return user_input

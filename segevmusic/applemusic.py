@@ -168,7 +168,7 @@ class AMFunctions:
             index += 1
         # chosen_index = int(input(f"\n--> What is your choice? (1-{index}) ")) - 1
         options = {str(i): i for i in range(1, index + 1)}
-        chosen_index = int(ask(f"\n--> What is your choice (1-{index})? ", bool_dict=options)) - 1
+        chosen_index = ask(f"\n--> What is your choice (1-{index})? ", bool_dict=options) - 1
         return songs[chosen_index]
 
     @classmethod
