@@ -3,7 +3,7 @@ from segevmusic.utils import has_hebrew, ask
 
 ARTWORK_EMBED_SIZE = 1400
 ARTWORK_REPR_SIZE = 600
-AMSONG_REPR = """{name} // Artist: {artist_name} // Album: {album_name}{explicit} // Released: ({release_date})"""
+AMSONG_REPR = """Name: {name} // Artist: {artist_name} // Album: {album_name}({release_date}){explicit}"""
 SONG_SEARCH_LIMIT = 1
 ALBUM_SEARCH_LIMIT = 5
 ALBUM_SECOND_SEARCH_LIMIT = 10
@@ -117,7 +117,7 @@ class AMSong(AMObject):
 
     def __str__(self):
         return AMSONG_REPR.format(name=self.name, artist_name=self.artist_name, album_name=self.album_name,
-                                  release_date=self.release_date, explicit=" (Explicit)" if self.is_explicit else '')
+                                  release_date=self.release_date, explicit=" *Explicit*" if self.is_explicit else '')
 
 
 class AMAlbum(AMObject):

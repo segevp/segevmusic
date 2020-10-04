@@ -190,6 +190,7 @@ class MusicDownloader:
             self.upload()
         newline()
         self.show_availability()
+        newline()
         self.finish()
 
 
