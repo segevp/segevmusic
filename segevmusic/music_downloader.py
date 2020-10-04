@@ -152,6 +152,7 @@ class MusicDownloader:
         """
         print(f"--> Your download is available at:\n{realpath(self.download_path)}")
         if self.to_upload:
+            newline()
             print(f"--> Your download is available at:\n{self.wt_link}")
 
     def finish(self):

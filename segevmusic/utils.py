@@ -53,4 +53,4 @@ def get_indexes(max_index, min_index=1) -> List[int]:
 
 
 def newline():
-    print("\n")
+    print("\n", end='')
