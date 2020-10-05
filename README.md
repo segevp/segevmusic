@@ -10,6 +10,7 @@ As for songs searching support:
 - Interactively searching for songs _(the default)_
 - Loading song names from a file _(-f)_
 - Validation and modifying of chosen songs _(-c)_
+- **currently beta:** Download an entire album - new feature! _(-a)_
 
 At last it supports uploading downloaded files to WeTransfer _(-u)_! Useful if you use a remote server.
 
@@ -19,6 +20,11 @@ At last it supports uploading downloaded files to WeTransfer _(-u)_! Useful if y
 Installation is as simple as a one line of code:
 
 ```bash
+pip3 install git+https://github.com/segevp/segevmusic.git
+```
+Or via SSH:
+
+```bash
 pip3 install git+ssh://git@github.com/segevp/segevmusic.git
 ```
 
@@ -26,7 +32,9 @@ pip3 install git+ssh://git@github.com/segevp/segevmusic.git
 
 ## Usage
 ```
-segevmusic [-h] [-f FILE] [-u] [-d] [path]
+segevmusic [-h] [-f FILE] [-u] [-a] [-d] [path]
+
+download music effortlessly
 
 positional arguments:
   path                  songs download path
@@ -35,6 +43,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -f FILE, --file FILE  load a file with songs list
   -u, --upload          upload songs to wetransfer
+  -a, --album           download an entire album
   -d, --dont-validate   don't validate chosen songs
 ```
 

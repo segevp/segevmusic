@@ -1,14 +1,38 @@
-from requests import get
 from segevmusic.utils import has_hebrew, ask
+from requests import get
+from typing import List
 
 ARTWORK_EMBED_SIZE = 1400
 ARTWORK_REPR_SIZE = 600
-AMSONG_REPR = """{name} // Artist: {artist_name} // Album: {album_name}{explicit} // Released: ({release_date})"""
-SONG_SEARCH_LIMIT = 1
-ALBUM_SEARCH_LIMIT = 5
-ALBUM_SECOND_SEARCH_LIMIT = 10
+AMOBJECT_REPR_FIRST = "Name: {name} // Artist: {artist_name} "
+AMOBJECT_REPR_SECOND = "({release_date}){explicit}"
+AMSONG_REPR_MIDDLE = " // Album: {album_name} "
 AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/" \
            r"search.json?types=songs,albums&term={name}&limit={limit}&l={language}"
+ITUNES_QUERY = 'https://itunes.apple.com/il/lookup?id={id}&entity=song'
+
+SONG_SEARCH_LIMIT = 1
+SONG_MATCH_SEARCH_LIMIT = 5
+ALBUM_SEARCH_LIMIT = 5
+ALBUM_SECOND_SEARCH_LIMIT = 10
+ATTEMPTS_DICT = {
+    1: {'term': "{artist} + ' ' + {name}",
+        'limit': ALBUM_SEARCH_LIMIT,
+        'success': '',
+        'fail': "--> WARNING: Failed fetching album metadata for '{song_name}'. Trying again..."},
+    2: {'term': "{name}",
+        'limit': ALBUM_SECOND_SEARCH_LIMIT,
+        'success': "--> SUCCESS: Fetched album metadata successfully",
+        'fail': "--> ERROR: Failed second attempt for '{song_name}'. Giving up."}
+}
+
+
+# ITUNES_SONGS_FETCH = {
+#     'id': lambda song: song['trackId'],
+#     'name': lambda song: song['trackName'],
+#     'artist': lambda song: song['artistName'],
+#     'album': None  # Should be changed
+# }
 
 
 class AMObject:
@@ -68,8 +92,15 @@ class AMObject:
         """
         return get(self.artwork_url.format(w=w, h=h)).content
 
+    def _str_part_two(self):
+        return AMOBJECT_REPR_SECOND.format(release_date=self.release_date,
+                                           explicit=" *Explicit*" if self.is_explicit else '')
+
     def __bool__(self):
         return bool(self.json)
+
+    def __str__(self):
+        return AMOBJECT_REPR_FIRST.format(name=self.name, artist_name=self.artist_name, album_name=self.album_name)
 
 
 class AMSong(AMObject):
@@ -77,7 +108,7 @@ class AMSong(AMObject):
     A class for handling Apple Music API's Song object.
     """
 
-    def __init__(self, json):
+    def __init__(self, json=None):
         super().__init__(json)
         self.album = AMAlbum()
 
@@ -116,8 +147,9 @@ class AMSong(AMObject):
         return super(AMSong, self).get_artwork(w, h)
 
     def __str__(self):
-        return AMSONG_REPR.format(name=self.name, artist_name=self.artist_name, album_name=self.album_name,
-                                  release_date=self.release_date, explicit=" (Explicit)" if self.is_explicit else '')
+        return "Song " + super(AMSong, self).__str__() \
+               + AMSONG_REPR_MIDDLE.format(album_name=self.album_name) \
+               + super(AMSong, self)._str_part_two()
 
 
 class AMAlbum(AMObject):
@@ -146,11 +178,18 @@ class AMAlbum(AMObject):
     def track_count(self):
         return self.json['attributes']['trackCount']
 
+    def __str__(self):
+        return "Album " + super(AMAlbum, self).__str__() + super(AMAlbum, self)._str_part_two()
+
 
 class AMFunctions:
     """
     A functions toolbox for using Apple Music's API and Song/Album objects.
     """
+
+    @staticmethod
+    def _get_language(name):
+        return 'he' if has_hebrew(name) else 'en'
 
     @staticmethod
     def query(name: str, limit: int, language: str = 'en') -> dict:
@@ -163,82 +202,144 @@ class AMFunctions:
         return json
 
     @staticmethod
-    def choose_song(json: dict, query_term: str) -> AMSong:
+    def json_to_items(json: dict, items_type: type) -> List[AMObject]:
+        if not len(json):
+            return []
+        item_key = 'songs' if items_type == AMSong else 'albums'
+        items = [items_type(song_json) for song_json in json[item_key]['data']]
+        return items
+
+    @staticmethod
+    def _choose_item(items: List[AMObject]):
+        items_dict = {str(index): item for index, item in enumerate(items, start=1)}
+        for index, item in items_dict.items():
+            print(f"{index}) {item}")
+        chosen_item = ask(f"\n--> What is your choice (1-{len(items_dict)})? ", bool_dict=items_dict)
+        return chosen_item
+
+    @staticmethod
+    def _match_item(items: List[AMObject], wanted_id: str) -> AMObject:
+        for item in items:
+            if item.id == str(wanted_id):
+                return item
+
+    @classmethod
+    def get_item(cls, items: List[AMSong or AMAlbum], query_term: str = None,
+                 wanted_id: str = None) -> AMSong or AMAlbum:
         """
         Returns interactively chosen desired song, or automatically if only one result.
         Options are taken from the given results json.
         """
-        index = 0
-        songs = [AMSong(song_json) for song_json in json['songs']['data']]
-        # One song case:
-        if len(songs) == 1:
-            # print(f"--> {songs[0]}")
-            return songs[0]
-        print(f"--> Choose the correct song for {query_term}:\n")
-        # Multiple songs case:
-        for song in songs:
-            print(f"{index + 1})", song, end='\n')
-            index += 1
-        options = {str(i): i for i in range(1, index + 1)}
-        chosen_index = ask(f"\n--> What is your choice (1-{index})? ", bool_dict=options) - 1
-        return songs[chosen_index]
+        if wanted_id:
+            return cls._match_item(items, wanted_id)
+        # No items case:
+        elif not len(items):
+            print(f"--> ERROR: Nothing found for '{query_term}'; Check for spelling errors.")
+        # One item case:
+        elif len(items) == 1:
+            return items[0]
+        # Multiple items case:
+        else:
+            print(f"--> Choose the correct item for '{query_term}':\n")
+            chosen_item = cls._choose_item(items)
+            return chosen_item
+        return None
 
     @classmethod
-    def attach_album(cls, amsong: AMSong, language: str) -> int:
+    def attach_album(cls, song: AMSong, language: str, album: AMAlbum = None, attempt=1) -> int:
         """
         Attaching AMAlbum object to a given AMSong's album attribute.
         Returns 0 if succeed, and 1 otherwise.
         """
-        wanted_album_id = amsong.album_id_from_song_url()
-        results = cls.query(amsong.artist_name + ' ' + amsong.album_name, ALBUM_SEARCH_LIMIT, language)
-        for album in results['albums']['data']:
-            if album['id'] == wanted_album_id:
-                amsong.album = AMAlbum(album)
-                return 0
-        print(f"--> WARNING: Failed fetching album metadata for {amsong.name}. Trying again...")
-        results = cls.query(amsong.album_name, ALBUM_SECOND_SEARCH_LIMIT, language)
-        for album in results['albums']['data']:
-            if album['id'] == wanted_album_id:
-                amsong.album = AMAlbum(album)
-                print("--> SUCCESS: Fetched album metadata successfully")
-                return 0
-        print("--> ERROR: Failed second attempt. Giving up.")
-        return 1
+        if album:
+            song.album = album
+            return 0
+
+        wanted_album_id = song.album_id_from_song_url()
+        results = cls.query(ATTEMPTS_DICT[attempt]['term'], ATTEMPTS_DICT[attempt]['limit'], language)
+        albums = cls.json_to_items(results, AMAlbum)
+        matched_album = cls.get_item(albums, wanted_id=wanted_album_id)
+        if matched_album:
+            print(ATTEMPTS_DICT[attempt]['success'])
+            song.album = matched_album
+            return 0
+
+        print(ATTEMPTS_DICT[attempt]['fail'].format(song_name=song.name))
+        if attempt < 2:
+            cls.attach_album(song, language, album, attempt + 1)
+        else:
+            return 1
 
     @classmethod
-    def translate_song(cls, amsong: AMSong) -> int:
+    def translate_item(cls, item: AMSong or AMAlbum) -> int:
         """
         If a language that's not english was chosen for metadata,
         translates genres to English.
         Returns 0 if succeed, and 1 otherwise.
         """
-        wanted_song_id = amsong.id
-        results = cls.query(amsong.artist_name + ' ' + amsong.album_name, SONG_SEARCH_LIMIT)
-        for song in results['songs']['data']:
-            if song['id'] == wanted_song_id:
-                amsong.json['attributes']['genreNames'] = AMSong(song).genres
+        wanted_song_id = item.id
+        results = cls.query(item.artist_name + ' ' + item.album_name, ALBUM_SEARCH_LIMIT)
+        for amobject in cls.json_to_items(results, type(item)):
+            if amobject.id == wanted_song_id:
+                item.json['attributes']['genreNames'] = amobject.genres
                 return 0
         return 1
 
     @classmethod
-    def search_song(cls, name, limit=SONG_SEARCH_LIMIT) -> AMSong or None:
+    def search_song(cls, name, limit=SONG_SEARCH_LIMIT, album: AMAlbum = None, wanted_id: str = None) -> AMSong:
         """
         Querying Apple Music with given limit for a given name, determines
         the song's language, prompts user for choosing the correct song,
         attaches the song the album's object and returns the AMSong object.
         """
-        # Set song language
-        language = 'he' if has_hebrew(name) else 'en'
-        query_results = cls.query(name, limit=limit, language=language)
-        # Run query
-        try:
-            song = cls.choose_song(query_results, name)
-        except KeyError:
-            print(f"--> ERROR: Nothing found for '{name}'; Check for spelling errors.")
-            return None
-        # Attach album metadata
-        cls.attach_album(song, language)
-        # Translate genres
+        language = cls._get_language(name)
+        query_results = cls.query(name, limit, language)
+        songs = cls.json_to_items(query_results, AMSong)
+        song = cls.get_item(songs, name, wanted_id)
+        if not song:
+            return AMSong()
+        cls.attach_album(song, language, album)
         if language == 'he':
-            cls.translate_song(song)
+            cls.translate_item(song)
         return song
+
+    @classmethod
+    def search_album(cls, name, limit=ALBUM_SEARCH_LIMIT):
+        language = cls._get_language(name)
+        query_results = cls.query(name, limit, language)
+        albums = cls.json_to_items(query_results, AMAlbum)
+        album = cls.get_item(albums, name)
+        if album:
+            cls.translate_item(album)
+        return album if album else AMAlbum()
+
+    @classmethod
+    def album_to_songs(cls, album: AMAlbum) -> List[AMSong]:
+        language = cls._get_language(f"{album.name} {album.artist_name}")
+        song_jsons = get(ITUNES_QUERY.format(id=album.id)).json()['results'][1:]
+        song_ids = {}
+        for song_json in song_jsons:
+            song_id = str(song_json['trackId'])
+            song_name = song_json['trackName']
+            artist = song_json['artistName']
+            song_ids.update({song_id: artist + ' ' + song_name})
+
+        results = cls.query(f"{album.name} {album.artist_name}", 25, language)
+        items = cls.json_to_items(results, AMSong)
+        songs_dict = cls.batch_match(list(song_ids.keys()), items)
+
+        for song_id, song in songs_dict.items():
+            if not song:
+                print(f"--> ERROR: Couldn't find the song '{song_ids[song_id]}'")
+            else:
+                song.album = album
+                song.json['attributes']['genreNames'] = album.genres
+
+        return list(filter(None, songs_dict.values()))
+
+    @staticmethod
+    def batch_match(wanted_ids: list, items: List[AMSong or AMAlbum]):
+        match_dict = {wanted_id: None for wanted_id in wanted_ids}
+        items_dict = {item.id: item for item in items}
+        match_dict.update((item_id, items_dict[item_id]) for item_id in match_dict.keys() & items_dict.keys())
+        return match_dict

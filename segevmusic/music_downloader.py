@@ -16,7 +16,8 @@ class MusicDownloader:
         self.download_path = args.path
         self.to_upload = args.upload
         self.file_path = args.file
-        self.to_check = args.check
+        self.all_album = args.album
+        self.to_check = args.check if not args.album else False
 
         self.app = DeezerFunctions.login(self.download_path)
         self.tagger = Tagger(self.download_path)
@@ -33,10 +34,11 @@ class MusicDownloader:
         Get user arguments
         :return: The parsed arguments inside an argparse.Namespace object
         """
-        parser = ArgumentParser()
+        parser = ArgumentParser(description="download music effortlessly")
         parser.add_argument("path", help="songs download path", nargs='?', default='./Songs')
         parser.add_argument("-f", "--file", help="load a file with songs list", type=str)
         parser.add_argument("-u", "--upload", help="upload songs to wetransfer", action="store_true")
+        parser.add_argument("-a", "--album", help="download an entire album", action="store_true")
         parser.add_argument("-d", "--dont-validate", help="don't validate chosen songs",
                             action="store_false", dest='check')
         args = parser.parse_args()
@@ -76,6 +78,17 @@ class MusicDownloader:
         """
         for song_name in get_lines(self.file_path):
             self._add_song(song_name)
+
+    def get_songs_album(self):
+        album = None
+        while not album:
+            newline()
+            album_name = input("--> Enter album name (+ Artist), or Return-key to continue: ")
+            album = AMFunctions.search_album(album_name)
+        songs = AMFunctions.album_to_songs(album)
+        for song in songs:
+            self.songs.append(song)
+            self.search_term.append(f'{song.name} {song.artist_name} {song.album_name}')
 
     def list_songs(self):
         count = 1
@@ -175,6 +188,8 @@ class MusicDownloader:
         """
         if self.file_path:
             self.get_songs_file()
+        elif self.all_album:
+            self.get_songs_album()
         else:
             self.get_songs_interactive()
         newline()
@@ -190,6 +205,7 @@ class MusicDownloader:
             self.upload()
         newline()
         self.show_availability()
+        newline()
         self.finish()
 
 
