@@ -1,4 +1,4 @@
-from segevmusic.utils import has_hebrew, ask
+from .utils import has_hebrew, ask
 from requests import get
 from typing import List
 
