@@ -1,6 +1,7 @@
-from segevmusic.utils import has_hebrew, ask
+from .utils import has_hebrew, ask
 from requests import get
 from typing import List
+from urllib.parse import quote
 
 ARTWORK_EMBED_SIZE = 1400
 ARTWORK_REPR_SIZE = 600
@@ -16,11 +17,11 @@ SONG_MATCH_SEARCH_LIMIT = 5
 ALBUM_SEARCH_LIMIT = 5
 ALBUM_SECOND_SEARCH_LIMIT = 10
 ATTEMPTS_DICT = {
-    1: {'term': "{artist} + ' ' + {name}",
+    1: {'term': 'f"{song.artist_name} + ' ' + {song.album_name}"',
         'limit': ALBUM_SEARCH_LIMIT,
         'success': '',
         'fail': "--> WARNING: Failed fetching album metadata for '{song_name}'. Trying again..."},
-    2: {'term': "{name}",
+    2: {'term': 'f"{song.album_name}"',
         'limit': ALBUM_SECOND_SEARCH_LIMIT,
         'success': "--> SUCCESS: Fetched album metadata successfully",
         'fail': "--> ERROR: Failed second attempt for '{song_name}'. Giving up."}
@@ -197,7 +198,8 @@ class AMFunctions:
         Query Apple Music with the given string, search limit and response language.
         Returns the response json
         """
-        query = AM_QUERY.format(name=name.replace(' ', '+'), limit=limit, language=language)
+        encoded_name = quote(name)
+        query = AM_QUERY.format(name=encoded_name, limit=limit, language=language)
         json = get(query).json()
         return json
 
@@ -256,7 +258,7 @@ class AMFunctions:
             return 0
 
         wanted_album_id = song.album_id_from_song_url()
-        results = cls.query(ATTEMPTS_DICT[attempt]['term'], ATTEMPTS_DICT[attempt]['limit'], language)
+        results = cls.query(eval(ATTEMPTS_DICT[attempt]['term']), ATTEMPTS_DICT[attempt]['limit'], language)
         albums = cls.json_to_items(results, AMAlbum)
         matched_album = cls.get_item(albums, wanted_id=wanted_album_id)
         if matched_album:

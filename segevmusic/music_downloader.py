@@ -1,8 +1,8 @@
-from segevmusic.tagger import Tagger
-from segevmusic.applemusic import AMFunctions
-from segevmusic.deezer import DeezerFunctions
-from segevmusic.wetransfer import WTSession
-from segevmusic.utils import get_lines, get_indexes, newline
+from .tagger import Tagger
+from .applemusic import AMFunctions
+from .deezer import DeezerFunctions
+from .wetransfer import WTSession
+from .utils import get_lines, get_indexes, newline
 from shutil import rmtree
 from os.path import realpath
 from argparse import ArgumentParser, Namespace
