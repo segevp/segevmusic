@@ -212,7 +212,7 @@ class AMFunctions:
         return items
 
     @staticmethod
-    def _choose_item(items: List[AMObject]):
+    def _choose_item(items: List[AMSong or AMAlbum]) -> AMSong or AMAlbum:
         items_dict = {str(index): item for index, item in enumerate(items, start=1)}
         for index, item in items_dict.items():
             print(f"{index}) {item}")
@@ -226,8 +226,7 @@ class AMFunctions:
                 return item
 
     @classmethod
-    def get_item(cls, items: List[AMSong or AMAlbum], query_term: str = None,
-                 wanted_id: str = None) -> AMSong or AMAlbum:
+    def get_item(cls, items: List[AMObject], query_term: str = None, wanted_id: str = None) -> AMObject:
         """
         Returns interactively chosen desired song, or automatically if only one result.
         Options are taken from the given results json.
@@ -288,16 +287,24 @@ class AMFunctions:
         return 1
 
     @classmethod
-    def search_song(cls, name, limit=SONG_SEARCH_LIMIT, album: AMAlbum = None, wanted_id: str = None) -> AMSong:
+    def _search_item(cls, name: str, item_type: AMSong or AMAlbum, limit: int,
+                     wanted_id: str = None) -> AMSong or AMAlbum:
+        language = cls._get_language(name)
+        query_results = cls.query(name, limit, language)
+        items = cls.json_to_items(query_results, item_type)
+        item = cls.get_item(items, name, wanted_id)
+        return item
+
+    @classmethod
+    def search_song(cls, name: str, limit: int = SONG_SEARCH_LIMIT, album: AMAlbum = None,
+                    wanted_id: str = None) -> AMSong:
         """
         Querying Apple Music with given limit for a given name, determines
         the song's language, prompts user for choosing the correct song,
         attaches the song the album's object and returns the AMSong object.
         """
         language = cls._get_language(name)
-        query_results = cls.query(name, limit, language)
-        songs = cls.json_to_items(query_results, AMSong)
-        song = cls.get_item(songs, name, wanted_id)
+        song = cls._search_item(name, AMSong, limit, wanted_id)
         if not song:
             return AMSong()
         cls.attach_album(song, language, album)
@@ -306,11 +313,8 @@ class AMFunctions:
         return song
 
     @classmethod
-    def search_album(cls, name, limit=ALBUM_SEARCH_LIMIT):
-        language = cls._get_language(name)
-        query_results = cls.query(name, limit, language)
-        albums = cls.json_to_items(query_results, AMAlbum)
-        album = cls.get_item(albums, name)
+    def search_album(cls, name: str, limit: int = ALBUM_SEARCH_LIMIT):
+        album = cls._search_item(name, AMSong, limit)
         if album:
             cls.translate_item(album)
         return album if album else AMAlbum()

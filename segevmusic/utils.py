@@ -2,6 +2,7 @@ from typing import List
 
 BOOL_DICT = {'y': True, 'Y': True, 'yes': True, 'Yes': True, '': True,
              'n': False, 'N': False, 'no': False, 'No': False}
+FIX_TABLE = {ord(char): '_' for char in '\0\/:*?"<>|]'}
 
 
 def ask(question: str, bool_dict: dict = BOOL_DICT, on_interrupt=False):
@@ -54,3 +55,7 @@ def get_indexes(max_index, min_index=1) -> List[int]:
 
 def newline():
     print("\n", end='')
+
+
+def fix_name(name: str):
+    return name.translate(FIX_TABLE)
