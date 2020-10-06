@@ -331,7 +331,9 @@ class AMFunctions:
         for itunes_json in itunes_jsons:
             song = cls.itunes_to_song(itunes_json)
             song.isrc = isrc[index]
+            song.album = album
             songs.append(song)
+            index += 1
 
         return songs
 
