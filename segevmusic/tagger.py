@@ -1,4 +1,4 @@
-from .applemusic import AMSong
+from segevmusic.applemusic import AMSong
 from mutagen.id3 import ID3, TXXX, TIT2, TPE1, TALB, TPE2, TCON, TPUB, TSRC, APIC, TCOP, TDRC
 from os import replace
 from os.path import realpath, join

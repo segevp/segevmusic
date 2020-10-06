@@ -1,7 +1,11 @@
 from typing import List
+from requests import get
+from urllib.parse import quote
 
 BOOL_DICT = {'y': True, 'Y': True, 'yes': True, 'Yes': True, '': True,
              'n': False, 'N': False, 'no': False, 'No': False}
+
+ODESLI_URL = "https://api.song.link/v1-alpha.1/links?url={url}"
 
 
 def ask(question: str, bool_dict: dict = BOOL_DICT, on_interrupt=False):
@@ -54,3 +58,9 @@ def get_indexes(max_index, min_index=1) -> List[int]:
 
 def newline():
     print("\n", end='')
+
+
+def convert_platform_link(link: str, wanted_platform: str):
+    url = quote(link)
+    json = get(ODESLI_URL.format(url=url)).json()
+    return json['linksByPlatform'][wanted_platform]['url']

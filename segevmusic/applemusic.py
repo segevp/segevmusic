@@ -1,4 +1,5 @@
-from .utils import has_hebrew, ask
+from segevmusic.utils import has_hebrew, ask
+from segevmusic.deezer import DeezerFunctions
 from requests import get
 from typing import List
 from urllib.parse import quote
@@ -10,7 +11,7 @@ AMOBJECT_REPR_SECOND = "({release_date}){explicit}"
 AMSONG_REPR_MIDDLE = " // Album: {album_name} "
 AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/" \
            r"search.json?types=songs,albums&term={name}&limit={limit}&l={language}"
-ITUNES_QUERY = 'https://itunes.apple.com/il/lookup?id={id}&entity=song'
+ITUNES_QUERY = 'https://itunes.apple.com/il/lookup?id={id}&entity=song&l={language}'
 
 SONG_SEARCH_LIMIT = 1
 SONG_MATCH_SEARCH_LIMIT = 5
@@ -26,14 +27,6 @@ ATTEMPTS_DICT = {
         'success': "--> SUCCESS: Fetched album metadata successfully",
         'fail': "--> ERROR: Failed second attempt for '{song_name}'. Giving up."}
 }
-
-
-# ITUNES_SONGS_FETCH = {
-#     'id': lambda song: song['trackId'],
-#     'name': lambda song: song['trackName'],
-#     'artist': lambda song: song['artistName'],
-#     'album': None  # Should be changed
-# }
 
 
 class AMObject:
@@ -121,6 +114,10 @@ class AMSong(AMObject):
     def isrc(self):
         return self.json['attributes']['isrc']
 
+    @isrc.setter
+    def isrc(self, value: str):
+        self.json['attributes']['isrc'] = value
+
     @property
     def track_number(self):
         return self.json['attributes']['trackNumber']
@@ -202,6 +199,10 @@ class AMFunctions:
         query = AM_QUERY.format(name=encoded_name, limit=limit, language=language)
         json = get(query).json()
         return json
+
+    @staticmethod
+    def query_itunes(item_id: str, language: str = 'en'):
+        return get(ITUNES_QUERY.format(id=item_id, language=language)).json()['results']
 
     @staticmethod
     def json_to_items(json: dict, items_type: type) -> List[AMObject]:
@@ -318,26 +319,41 @@ class AMFunctions:
     @classmethod
     def album_to_songs(cls, album: AMAlbum) -> List[AMSong]:
         language = cls._get_language(f"{album.name} {album.artist_name}")
-        song_jsons = get(ITUNES_QUERY.format(id=album.id)).json()['results'][1:]
-        song_ids = {}
-        for song_json in song_jsons:
-            song_id = str(song_json['trackId'])
-            song_name = song_json['trackName']
-            artist = song_json['artistName']
-            song_ids.update({song_id: artist + ' ' + song_name})
+        query_results = cls.query_itunes(album.id, language)
+        itunes_jsons = list(filter(lambda item: item['kind'] == 'song' if 'kind' in item else False, query_results))
+        isrc = DeezerFunctions.isrcs_from_album(album)
+        songs = []
 
-        results = cls.query(f"{album.name} {album.artist_name}", 25, language)
-        items = cls.json_to_items(results, AMSong)
-        songs_dict = cls.batch_match(list(song_ids.keys()), items)
+        if len(isrc) != len(itunes_jsons):
+            print(f"--> WARNING: Some song might not be downloading properly; "
+                  f"{len(isrc)} from deezer, {len(itunes_jsons)} from python")
+        index = 0
+        for itunes_json in itunes_jsons:
+            song = cls.itunes_to_song(itunes_json)
+            song.isrc = isrc[index]
+            songs.append(song)
 
-        for song_id, song in songs_dict.items():
-            if not song:
-                print(f"--> ERROR: Couldn't find the song '{song_ids[song_id]}'")
-            else:
-                song.album = album
-                song.json['attributes']['genreNames'] = album.genres
+        return songs
 
-        return list(filter(None, songs_dict.values()))
+        # song_ids = {}
+        # for song_json in song_jsons:
+        #     song_id = str(song_json['trackId'])
+        #     song_name = song_json['trackName']
+        #     artist = song_json['artistName']
+        #     song_ids.update({song_id: artist + ' ' + song_name})
+        #
+        # results = cls.query(f"{album.name} {album.artist_name}", 25, language)
+        # items = cls.json_to_items(results, AMSong)
+        # songs_dict = cls.batch_match(list(song_ids.keys()), items)
+        #
+        # for song_id, song in songs_dict.items():
+        #     if not song:
+        #         print(f"--> ERROR: Couldn't find the song '{song_ids[song_id]}'")
+        #     else:
+        #         song.album = album
+        #         song.json['attributes']['genreNames'] = album.genres
+        #
+        # return list(filter(None, songs_dict.values()))
 
     @staticmethod
     def batch_match(wanted_ids: list, items: List[AMSong or AMAlbum]):
@@ -345,3 +361,34 @@ class AMFunctions:
         items_dict = {item.id: item for item in items}
         match_dict.update((item_id, items_dict[item_id]) for item_id in match_dict.keys() & items_dict.keys())
         return match_dict
+
+    @staticmethod
+    def _artwork_url_customize(url):
+        custom_url = url.split('/')
+        return ''.join(custom_url[:-1] + ['{w}x{h}bb.jpeg'])
+
+    @classmethod
+    def itunes_to_song(cls, itunes_json: dict) -> AMSong:
+        return AMSong({
+            'id': itunes_json['trackId'],
+            'type': 'songs',
+            'href': None,
+            'attributes': {
+                'previews': [{'url': cls._artwork_url_customize(itunes_json['previewUrl'])}],
+                'artwork': {
+                    'width': ARTWORK_EMBED_SIZE,
+                    'height': ARTWORK_EMBED_SIZE,
+                    'url': itunes_json['artworkUrl100'],
+                },
+                'artistName': itunes_json['artistName'],
+                'url': itunes_json['trackViewUrl'],
+                'discNumber': itunes_json['discNumber'],
+                'genreNames': [itunes_json['primaryGenreName']],
+                'durationInMillis': itunes_json['trackTimeMillis'],
+                'releaseDate': itunes_json['releaseDate'][:10],
+                'name': itunes_json['trackName'],
+                'isrc': None,
+                'albumName': itunes_json['collectionName'],
+                'trackNumber': itunes_json['trackNumber']
+            }
+        })
