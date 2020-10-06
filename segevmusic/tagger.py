@@ -1,5 +1,4 @@
-from .applemusic import AMSong
-from .utils import fix_name
+from segevmusic.applemusic import AMSong
 from mutagen.id3 import ID3, TXXX, TIT2, TPE1, TALB, TPE2, TCON, TPUB, TSRC, APIC, TCOP, TDRC
 from os import replace
 from os.path import realpath, join
@@ -66,10 +65,8 @@ class Tagger:
         """
         Return the given song's "good" path - in the format:
         "<artist name> - <song name>.mp3"
-        Forbidden chars are replaced.
         """
-        good_path = join(self.path, f"{amsong.artist_name} - {amsong.name}.mp3")
-        return fix_name(good_path)
+        return join(self.path, f"{amsong.artist_name} - {amsong.name}.mp3")
 
     @staticmethod
     def _print_errors(song: AMSong, errors: List[str]):

@@ -1,8 +1,11 @@
 from typing import List
+from requests import get
+from urllib.parse import quote
 
 BOOL_DICT = {'y': True, 'Y': True, 'yes': True, 'Yes': True, '': True,
              'n': False, 'N': False, 'no': False, 'No': False}
-FIX_TABLE = {ord(char): '_' for char in '\0\/:*?"<>|]'}
+
+ODESLI_URL = "https://api.song.link/v1-alpha.1/links?url={url}"
 
 
 def ask(question: str, bool_dict: dict = BOOL_DICT, on_interrupt=False):
@@ -57,5 +60,7 @@ def newline():
     print("\n", end='')
 
 
-def fix_name(name: str):
-    return name.translate(FIX_TABLE)
+def convert_platform_link(link: str, wanted_platform: str):
+    url = quote(link)
+    json = get(ODESLI_URL.format(url=url)).json()
+    return json['linksByPlatform'][wanted_platform]['url']
