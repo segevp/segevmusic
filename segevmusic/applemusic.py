@@ -64,6 +64,10 @@ class AMObject:
     def genres(self):
         return self.json['attributes']['genreNames']
 
+    @genres.setter
+    def genres(self, value):
+        self.json['attributes']['genreNames'] = value
+
     @property
     def name(self):
         return self.json['attributes']['name']
@@ -283,7 +287,7 @@ class AMFunctions:
         results = cls.query(item.artist_name + ' ' + item.album_name, ALBUM_SEARCH_LIMIT)
         for amobject in cls.json_to_items(results, type(item)):
             if amobject.id == wanted_song_id:
-                item.json['attributes']['genreNames'] = amobject.genres
+                item.genres = amobject.genres
                 return 0
         return 1
 
@@ -315,7 +319,7 @@ class AMFunctions:
 
     @classmethod
     def search_album(cls, name: str, limit: int = ALBUM_SEARCH_LIMIT):
-        album = cls._search_item(name, AMSong, limit)
+        album = cls._search_item(name, AMAlbum, limit)
         if album:
             cls.translate_item(album)
         return album if album else AMAlbum()
@@ -324,42 +328,40 @@ class AMFunctions:
     def album_to_songs(cls, album: AMAlbum) -> List[AMSong]:
         language = cls._get_language(f"{album.name} {album.artist_name}")
         query_results = cls.query_itunes(album.id, language)
-        itunes_jsons = list(filter(lambda item: item['kind'] == 'song' if 'kind' in item else False, query_results))
-        isrc = DeezerFunctions.isrcs_from_album(album)
+        # itunes_jsons = list(filter(lambda item: item['kind'] == 'song' if 'kind' in item else False, query_results))
+        itunes_jsons = {str(json['trackId']): json for json in
+                        filter(lambda item: item['kind'] == 'song' if 'kind' in item else False, query_results)}
         songs = []
 
-        if len(isrc) != len(itunes_jsons):
-            print(f"--> WARNING: Some song might not be downloading properly; "
-                  f"{len(isrc)} from deezer, {len(itunes_jsons)} from python")
-        index = 0
-        for itunes_json in itunes_jsons:
-            song = cls.itunes_to_song(itunes_json)
-            song.isrc = isrc[index]
-            song.album = album
-            songs.append(song)
-            index += 1
+        # Trying to get ISRCs from Deezer
+        try:
+            isrc = DeezerFunctions.isrcs_from_album(album)
+            if len(isrc) != len(itunes_jsons):
+                print(f"--> WARNING: Some song might not be downloading properly; "
+                      f"{len(isrc)} from deezer, {len(itunes_jsons)} from python")
+            index = 0
+            for itunes_json in itunes_jsons.values():
+                song = cls.itunes_to_song(itunes_json, album)
+                song.isrc = isrc[index]
+                songs.append(song)
+                index += 1
+
+        # Trying to get ISRCs from Apple Music
+        except KeyError:
+            results = cls.query(f"{album.name} {album.artist_name}", 25, language)
+            items = cls.json_to_items(results, AMSong)
+            songs = cls.batch_match([song_id for song_id in itunes_jsons], items)
+            found_songs = []
+            for song_id, song in songs.items():
+                if not song:
+                    print(f"--> ERROR: Couldn't find the song '{itunes_jsons[song_id]['trackName']}'")
+                else:
+                    song.album = album
+                    song.genres = album.genres
+                    found_songs.append(song)
+            songs = found_songs
 
         return songs
-
-        # song_ids = {}
-        # for song_json in song_jsons:
-        #     song_id = str(song_json['trackId'])
-        #     song_name = song_json['trackName']
-        #     artist = song_json['artistName']
-        #     song_ids.update({song_id: artist + ' ' + song_name})
-        #
-        # results = cls.query(f"{album.name} {album.artist_name}", 25, language)
-        # items = cls.json_to_items(results, AMSong)
-        # songs_dict = cls.batch_match(list(song_ids.keys()), items)
-        #
-        # for song_id, song in songs_dict.items():
-        #     if not song:
-        #         print(f"--> ERROR: Couldn't find the song '{song_ids[song_id]}'")
-        #     else:
-        #         song.album = album
-        #         song.json['attributes']['genreNames'] = album.genres
-        #
-        # return list(filter(None, songs_dict.values()))
 
     @staticmethod
     def batch_match(wanted_ids: list, items: List[AMSong or AMAlbum]):
@@ -374,8 +376,8 @@ class AMFunctions:
         return ''.join(custom_url[:-1] + ['{w}x{h}bb.jpeg'])
 
     @classmethod
-    def itunes_to_song(cls, itunes_json: dict) -> AMSong:
-        return AMSong({
+    def itunes_to_song(cls, itunes_json: dict, album: AMAlbum = None) -> AMSong:
+        song = AMSong({
             'id': itunes_json['trackId'],
             'type': 'songs',
             'href': None,
@@ -389,7 +391,7 @@ class AMFunctions:
                 'artistName': itunes_json['artistName'],
                 'url': itunes_json['trackViewUrl'],
                 'discNumber': itunes_json['discNumber'],
-                'genreNames': [itunes_json['primaryGenreName']],
+                'genreNames': [itunes_json['primaryGenreName']] if not album else album.genres,
                 'durationInMillis': itunes_json['trackTimeMillis'],
                 'releaseDate': itunes_json['releaseDate'][:10],
                 'name': itunes_json['trackName'],
@@ -398,3 +400,5 @@ class AMFunctions:
                 'trackNumber': itunes_json['trackNumber']
             }
         })
+        song.album = album
+        return song
