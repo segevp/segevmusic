@@ -6,6 +6,7 @@ from segevmusic.utils import get_lines, get_indexes, newline
 from shutil import rmtree
 from os.path import realpath
 from argparse import ArgumentParser, Namespace
+from logging import shutdown
 
 REQUERY_LIMIT = 5
 ARL = "5bbd39c9df0b86568f46c9310cb61f4c9c3e3a1cef78b0a5e142066dca8c1ea495edea03cbb1536a5ba1fd2cff9b15fe21114d221140b5" \
@@ -170,10 +171,12 @@ class MusicDownloader:
             newline()
             print(f"--> Your download is available at:\n{self.wt_link}")
 
-    def finish(self):
+    @staticmethod
+    def finish():
         """
         Removes deemix config files and prints ending message.
         """
+        shutdown()
         rmtree('./config', ignore_errors=True)
         print("--> DONE!")
 
