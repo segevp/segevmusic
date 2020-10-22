@@ -20,6 +20,6 @@ setuptools.setup(
         "Topic :: Multimedia :: Sound/Audio"
     ],
     python_requires='>=3.6',
-    install_requires=['deemix>=1.5.8', 'mutagen'],
+    install_requires=['deemix>=1.5.12', 'mutagen'],
     entry_points={'console_scripts': ['segevmusic=segevmusic.music_downloader:main']}
 )
