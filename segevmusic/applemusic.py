@@ -266,7 +266,7 @@ class AMFunctions:
         albums = cls.json_to_items(results, AMAlbum)
         matched_album = cls.get_item(albums, wanted_id=wanted_album_id)
         if matched_album:
-            print(ATTEMPTS_DICT[attempt]['success'])
+            print(ATTEMPTS_DICT[attempt]['success'], end='')
             song.album = matched_album
             return 0
 

@@ -120,9 +120,6 @@ def settings_init(self, configFolder=None):
 
     self.settingsCheck()
 
-    # Make sure the download path exsits
-    # makedirs(self.settings['downloadLocation'], exist_ok=True)
-
     # LOGFILES
 
     # Create logfile name and path
