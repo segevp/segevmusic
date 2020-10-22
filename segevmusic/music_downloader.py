@@ -8,6 +8,8 @@ from os.path import realpath
 from argparse import ArgumentParser, Namespace
 
 REQUERY_LIMIT = 5
+ARL = "5bbd39c9df0b86568f46c9310cb61f4c9c3e3a1cef78b0a5e142066dca8c1ea495edea03cbb1536a5ba1fd2cff9b15fe21114d221140b5" \
+      "7e0ab96484d4a1f4d0acbbfe66af7587a8f2af59ebeb5036c7d09bd1d8ad936f4da1b9c1ed6af46e21"
 
 
 class MusicDownloader:
@@ -19,7 +21,7 @@ class MusicDownloader:
         self.all_album = args.album
         self.to_check = args.check if not args.album else False
 
-        self.app = DeezerFunctions.login(self.download_path)
+        self.app = DeezerFunctions.login(ARL, self.download_path)
         self.tagger = Tagger(self.download_path)
 
         self.songs = []

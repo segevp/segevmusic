@@ -1,5 +1,4 @@
 from segevmusic.overriders import cli_login, settings_init
-# from segevmusic.applemusic import AMSong, AMAlbum
 from segevmusic.utils import convert_platform_link
 from os.path import realpath, join, exists
 from deemix.app.cli import cli
@@ -9,7 +8,6 @@ from sys import stdout
 from requests import get
 
 DEEZER_ISRC_QUERY = r"https://api.deezer.com/2.0/track/isrc:{isrc}"
-ARL = r"5bbd39c9df0b86568f46c9310cb61f4c9c3e3a1cef78b0a5e142066dca8c1ea495edea03cbb1536a5ba1fd2cff9b15fe21114d221140b57e0ab96484d4a1f4d0acbbfe66af7587a8f2af59ebeb5036c7d09bd1d8ad936f4da1b9c1ed6af46e21"
 
 # Override deemix functions
 cli.login = cli_login
@@ -22,7 +20,7 @@ class DeezerFunctions:
     """
 
     @staticmethod
-    def login(songs_path: str = None, arl: str = ARL):
+    def login(arl: str, songs_path: str = None):
         """
         Initializing Deezer session.
         """
