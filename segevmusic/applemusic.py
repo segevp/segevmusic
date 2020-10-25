@@ -3,6 +3,8 @@ from segevmusic.deezer import DeezerFunctions
 from requests import get
 from typing import List
 from urllib.parse import quote
+from re import search
+from json import loads
 
 ARTWORK_EMBED_SIZE = 1400
 ARTWORK_REPR_SIZE = 600
@@ -12,6 +14,7 @@ AMSONG_REPR_MIDDLE = " // Album: {album_name} "
 AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/" \
            r"search.json?types=songs,albums&term={name}&limit={limit}&l={language}"
 ITUNES_QUERY = 'https://itunes.apple.com/il/lookup?id={id}&entity=song&l={language}'
+AM_REGEX = b'<script type="fastboot/shoebox" id="shoebox-media-api-cache-amp-music">(.*?)</script>'
 
 SONG_SEARCH_LIMIT = 1
 SONG_MATCH_SEARCH_LIMIT = 5
@@ -182,6 +185,19 @@ class AMAlbum(AMObject):
 
     def __str__(self):
         return "Album " + super(AMAlbum, self).__str__() + super(AMAlbum, self)._str_part_two()
+
+
+class AMPlaylist:
+    def __init__(self, json=None):
+        self.json = json
+
+    @property
+    def songs(self):
+        return [AMSong(song) for song in self.json['relationships']['tracks']['data']]
+
+    def __iter__(self):
+        for song in self.songs:
+            yield song
 
 
 class AMFunctions:
@@ -402,3 +418,12 @@ class AMFunctions:
         })
         song.album = album
         return song
+
+    @staticmethod
+    def get_playlist(url: str):
+        response = get(url).content
+        m = search(AM_REGEX, response)
+        json_content = m.group(1)
+        json = loads(json_content)
+        json_data = loads(json[list(json.keys())[1]])['d'][0]
+        return AMPlaylist(json_data)

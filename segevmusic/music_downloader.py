@@ -20,7 +20,8 @@ class MusicDownloader:
         self.to_upload = args.upload
         self.file_path = args.file
         self.all_album = args.album
-        self.to_check = args.check if not args.album else False
+        self.playlist = args.playlist
+        self.to_check = args.check if not any((args.album, args.playlist)) else False
 
         self.app = DeezerFunctions.login(ARL, self.download_path)
         self.tagger = Tagger(self.download_path)
@@ -41,7 +42,9 @@ class MusicDownloader:
         parser.add_argument("path", help="songs download path", nargs='?', default='./Songs')
         parser.add_argument("-f", "--file", help="load a file with songs list", type=str)
         parser.add_argument("-u", "--upload", help="upload songs to wetransfer", action="store_true")
-        parser.add_argument("-a", "--album", help="download an entire album", action="store_true")
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument("-a", "--album", help="download an entire album", action="store_true")
+        group.add_argument("-p", "--playlist", help="download an entire playlist", type=str)
         parser.add_argument("-d", "--dont-validate", help="don't validate chosen songs",
                             action="store_false", dest='check')
         args = parser.parse_args()
@@ -90,6 +93,12 @@ class MusicDownloader:
             album = AMFunctions.search_album(album_name)
         songs = AMFunctions.album_to_songs(album)
         for song in songs:
+            self.songs.append(song)
+            self.search_term.append(f'{song.name} {song.artist_name} {song.album_name}')
+
+    def get_songs_playlist(self):
+        playlist = AMFunctions.get_playlist(self.playlist)
+        for song in playlist:
             self.songs.append(song)
             self.search_term.append(f'{song.name} {song.artist_name} {song.album_name}')
 
@@ -195,6 +204,8 @@ class MusicDownloader:
             self.get_songs_file()
         elif self.all_album:
             self.get_songs_album()
+        elif self.playlist:
+            self.get_songs_playlist()
         else:
             self.get_songs_interactive()
         newline()
