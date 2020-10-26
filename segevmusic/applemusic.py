@@ -142,13 +142,14 @@ class AMSong(AMObject):
         """
         return self.url.split('/')[-1].split('?')[0]
 
-    def get_artwork(self, w: int = ARTWORK_EMBED_SIZE, h: int = ARTWORK_EMBED_SIZE) -> bytes:
+    def get_artwork(self, w: int = ARTWORK_EMBED_SIZE, h: int = ARTWORK_EMBED_SIZE,
+                    prefer_album: bool = False) -> bytes:
         """
         Returns the bytes of the artwork, with the given width and height.
         If album metadata was not fetched, artwork will be returned from the song itself.
         """
-        if self.album:
-            return get(self.artwork_url.format(w=w, h=h)).content
+        if prefer_album and self.album:
+            return self.album.get_artwork(w, h)
         return super(AMSong, self).get_artwork(w, h)
 
     def __str__(self):
