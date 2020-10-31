@@ -91,13 +91,12 @@ class MusicDownloader:
             newline()
             album_name = input("--> Enter album name (+ Artist), or Return-key to continue: ")
             album = AMFunctions.search_album(album_name)
-        songs = AMFunctions.album_to_songs(album)
-        for song in songs:
+        for song in album:
             self.songs.append(song)
             self.search_term.append(f'{song.name} {song.artist_name} {song.album_name}')
 
     def get_songs_playlist(self):
-        playlist = AMFunctions.get_playlist(self.playlist)
+        playlist = AMFunctions.get_item_from_url(self.playlist)
         for song in playlist:
             self.songs.append(song)
             self.search_term.append(f'{song.name} {song.artist_name} {song.album_name}')

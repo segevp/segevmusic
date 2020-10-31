@@ -1,6 +1,7 @@
 from typing import List
 from requests import get
 from urllib.parse import quote
+from re import search
 
 BOOL_DICT = {'y': True, 'Y': True, 'yes': True, 'Yes': True, '': True,
              'n': False, 'N': False, 'no': False, 'No': False}
@@ -23,11 +24,23 @@ def ask(question: str, bool_dict: dict = BOOL_DICT, on_interrupt=False):
     return bool_dict[answer]
 
 
+def choose_item(items: List):
+    items_dict = {str(index): item for index, item in enumerate(items, start=1)}
+    for index, item in items_dict.items():
+        print(f"{index}) {item}")
+    chosen_item = ask(f"\n--> What is your choice (1-{len(items_dict)})? ", bool_dict=items_dict)
+    return chosen_item
+
+
 def has_hebrew(name: str) -> bool:
     """
     Returns whether the given 'name' contains hebrew chars in it (bool).
     """
     return any("\u0590" <= letter <= "\u05EA" for letter in name)
+
+
+def get_language(name):
+    return 'he' if has_hebrew(name) else 'en'
 
 
 def get_lines(song_names_path: str) -> List[str]:
@@ -64,3 +77,16 @@ def convert_platform_link(link: str, wanted_platform: str):
     url = quote(link)
     json = get(ODESLI_URL.format(url=url)).json()
     return json['linksByPlatform'][wanted_platform]['url']
+
+
+def update_url_param(url: str, param: str, value: str):
+    url_split = url.split('?')
+    re_match = search(r"[?&](" + param + "=[^&]+).*$", url)
+    param_value = f"{param}={quote(value)}"
+    if len(url_split) == 1:
+        new_url = url + f'?{param_value}'
+    elif re_match:
+        new_url = url.replace(re_match.group(1), param_value)
+    else:
+        new_url = url + f'&{param_value}'
+    return new_url
