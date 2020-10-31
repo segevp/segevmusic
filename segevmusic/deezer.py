@@ -3,7 +3,7 @@ from segevmusic.utils import convert_platform_link
 from os.path import realpath, join, exists
 from deemix.app.cli import cli
 from deemix.app.settings import Settings
-from typing import List
+from typing import List, Iterable
 from sys import stdout
 from requests import get
 
@@ -47,7 +47,7 @@ class DeezerFunctions:
         return exists(join(download_path, f"{song.isrc}.mp3"))
 
     @classmethod
-    def download(cls, songs: List, app: cli):
+    def download(cls, songs: Iterable, app: cli):
         """
         Downloads given deezer links.
         """

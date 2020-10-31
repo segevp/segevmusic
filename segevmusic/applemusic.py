@@ -199,8 +199,8 @@ class AMPlaylist:
         self.json = json
 
     @property
-    def songs(self):
-        return [AMSong(song) for song in self.json['relationships']['tracks']['data']]
+    def songs(self) -> List[AMSong]:
+        return [AMSong(song) for song in self.json['relationships']['tracks']['data'] if song['type'] == 'songs']
 
     def __iter__(self):
         for song in self.songs:
@@ -235,12 +235,6 @@ class AMFunctions:
         item_key = 'songs' if items_type == AMSong else 'albums'
         items = [items_type(song_json) for song_json in json[item_key]['data']]
         return items
-
-    # @staticmethod
-    # def _match_item(items: List[AMObject], wanted_id: str) -> AMObject:
-    #     for item in items:
-    #         if item.id == str(wanted_id):
-    #             return item
 
     @classmethod
     def get_item(cls, items: List[AMObject], query_term: str = None) -> AMObject:
@@ -289,12 +283,14 @@ class AMFunctions:
         return item
 
     @classmethod
-    def search_song(cls, name: str, limit: int = SONG_SEARCH_LIMIT) -> AMSong:
+    def search_song(cls, name: str, limit: int = None) -> AMSong:
         """
         Querying Apple Music with given limit for a given name, determines
         the song's language, prompts user for choosing the correct song,
         attaches the song the album's object and returns the AMSong object.
         """
+        if not limit:
+            limit = SONG_SEARCH_LIMIT
         song = cls._search_item(name, AMSong, limit)
         if not song:
             return AMSong()
@@ -315,8 +311,11 @@ class AMFunctions:
     def get_item_from_url(cls, url: str):
         response = get(url).content
         m = search(AM_REGEX, response)
-        json = loads(m.group(1))
-        json_data = loads(json[list(json.keys())[1]])['d'][0]
+        try:
+            json = loads(m.group(1))
+            json_data = loads(json[list(json.keys())[1]])['d'][0]
+        except KeyError:
+            return None
         item_type = json_data['type']
         return cls.AM_TYPES[item_type](json_data) if item_type in cls.AM_TYPES else json_data
 

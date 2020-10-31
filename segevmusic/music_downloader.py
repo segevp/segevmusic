@@ -1,5 +1,5 @@
 from segevmusic.tagger import Tagger
-from segevmusic.applemusic import AMFunctions
+from segevmusic.applemusic import AMFunctions, AMSong
 from segevmusic.deezer import DeezerFunctions
 from segevmusic.wetransfer import WTSession
 from segevmusic.utils import get_lines, get_indexes, newline
@@ -7,6 +7,7 @@ from shutil import rmtree
 from os.path import realpath
 from argparse import ArgumentParser, Namespace
 from logging import shutdown
+from typing import Iterable
 
 REQUERY_LIMIT = 5
 ARL = "5bbd39c9df0b86568f46c9310cb61f4c9c3e3a1cef78b0a5e142066dca8c1ea495edea03cbb1536a5ba1fd2cff9b15fe21114d221140b5" \
@@ -20,14 +21,14 @@ class MusicDownloader:
         self.to_upload = args.upload
         self.file_path = args.file
         self.all_album = args.album
-        self.playlist = args.playlist
+        self.link = args.link
         self.to_check = args.check if not any((args.album, args.playlist)) else False
 
         self.app = DeezerFunctions.login(ARL, self.download_path)
         self.tagger = Tagger(self.download_path)
 
-        self.songs = []
-        self.search_term = []
+        self.added_songs = {}
+        # self.search_term = []
         self.downloaded_songs = []
         self.songs_files = []
         self.wt_link = ''
@@ -44,24 +45,30 @@ class MusicDownloader:
         parser.add_argument("-u", "--upload", help="upload songs to wetransfer", action="store_true")
         group = parser.add_mutually_exclusive_group()
         group.add_argument("-a", "--album", help="download an entire album", action="store_true")
-        group.add_argument("-p", "--playlist", help="download an entire playlist", type=str)
+        group.add_argument("-l", "--link", help="download an entire collection (playlist/album) from a given link",
+                           type=str)
         parser.add_argument("-d", "--dont-validate", help="don't validate chosen songs",
                             action="store_false", dest='check')
         args = parser.parse_args()
         return args
 
-    def _add_song(self, name: str) -> int:
+    def _add_song(self, song: AMSong, name: str):
+        self.added_songs.update({song: name})
+
+    def _add_songs(self, songs: Iterable[AMSong]):
+        for song in songs:
+            self._add_song(song, f'{song.name} {song.artist_name} {song.album_name}')
+
+    def _search_song(self, name: str, limit: int = None) -> AMSong:
         """
         Querying Apple Music's API for given song name and query limit
-        and adds song to the songs attribute
+        and adds it if found.
         :param name: The search term - name of song( + artist).
         """
-        chosen_song = AMFunctions.search_song(name)
+        chosen_song = AMFunctions.search_song(name, limit)
         if chosen_song:
-            self.songs.append(chosen_song)
-            self.search_term.append(name)
-            return 1
-        return 0
+            self._add_song(chosen_song, name)
+        return chosen_song
 
     def get_songs_interactive(self):
         """
@@ -75,15 +82,16 @@ class MusicDownloader:
             if not song_name:
                 to_continue = False
                 continue
-            if self._add_song(song_name):
-                print(f"--> {self.songs[-1]}")
+            found_song = self._search_song(song_name)
+            if found_song:
+                print(f"--> {found_song}")
 
     def get_songs_file(self):
         """
         This function reads given file lines and adds every song mentioned in the file.
         """
         for song_name in get_lines(self.file_path):
-            self._add_song(song_name)
+            self._search_song(song_name)
 
     def get_songs_album(self):
         album = None
@@ -91,36 +99,35 @@ class MusicDownloader:
             newline()
             album_name = input("--> Enter album name (+ Artist), or Return-key to continue: ")
             album = AMFunctions.search_album(album_name)
-        for song in album:
-            self.songs.append(song)
-            self.search_term.append(f'{song.name} {song.artist_name} {song.album_name}')
+        self._add_songs(album)
 
-    def get_songs_playlist(self):
-        playlist = AMFunctions.get_item_from_url(self.playlist)
-        for song in playlist:
-            self.songs.append(song)
-            self.search_term.append(f'{song.name} {song.artist_name} {song.album_name}')
+    def get_songs_link(self):
+        collection = AMFunctions.get_item_from_url(self.link)
+        if collection:
+            self._add_songs(collection)
 
-    def list_songs(self):
-        count = 1
-        print("--> Chosen songs:\n")
-        for song in self.songs:
-            print(f"{count}) {song}")
-            count += 1
+    def list_songs(self, to_print=True) -> enumerate:
+        enum_songs = enumerate(self.added_songs, start=1)
+        if to_print:
+            print("--> Chosen songs:\n")
+            for index, song in enum_songs:
+                print(f"{index}) {song}")
+        return enum_songs
 
     def _requery(self, human_index: int):
         """
-        Runs query with larger limit and asking user to choose the right song.
-        Replaces bad song with correct song in the songs attribute.
+        Runs query with a larger query limit and prompts user to choose the correct song.
+        Replaces bad song with correct song.
         """
         index = human_index - 1
-        bad_song = self.songs[index]
-        chosen_song = AMFunctions.search_song(self.search_term[index], REQUERY_LIMIT)
+        bad_song = list(self.added_songs)[index]
+        search_term = self.added_songs[bad_song]
+        chosen_song = self._search_song(search_term, REQUERY_LIMIT)
+        del self.added_songs[bad_song]
         print(f"--> Replaced '{bad_song.short_name}' with '{chosen_song.short_name}'")
-        self.songs[index] = chosen_song
 
     def offer_fix(self):
-        bad_indexes = get_indexes(len(self.songs))
+        bad_indexes = get_indexes(len(self.added_songs))
         for bad_index in bad_indexes:
             self._requery(bad_index)
 
@@ -129,21 +136,22 @@ class MusicDownloader:
         Checks which songs are found in the download folder and adds them to the
         'downloaded_songs' attribute.
         """
-        self.downloaded_songs = [song for song in self.songs if DeezerFunctions.song_exists(song, self.download_path)]
+        self.downloaded_songs = [song for song in self.added_songs if
+                                 DeezerFunctions.song_exists(song, self.download_path)]
 
     def download(self):
         """
         Downloads all of the songs by generating their links
         and updating downloaded songs afterwards.
         """
-        DeezerFunctions.download(self.songs, self.app)
+        DeezerFunctions.download(self.added_songs, self.app)
         self._update_downloaded_songs()
 
     def _report_not_downloaded(self):
         """
         Prints a message of the songs that weren't downloaded.
         """
-        for failed_song in set(self.songs) - set(self.downloaded_songs):
+        for failed_song in set(self.added_songs) - set(self.downloaded_songs):
             print(f"--> ERROR: Song '{failed_song.short_name}' was not downloaded!")
 
     def tag(self):
@@ -203,8 +211,8 @@ class MusicDownloader:
             self.get_songs_file()
         elif self.all_album:
             self.get_songs_album()
-        elif self.playlist:
-            self.get_songs_playlist()
+        elif self.link:
+            self.get_songs_link()
         else:
             self.get_songs_interactive()
         newline()

@@ -1,5 +1,5 @@
  # SegevMusic 
- <img src="https://camo.githubusercontent.com/5eda29273e871718abf8f4f7f4da48dbe677a7bb/68747470733a2f2f7777772e6170706c652e636f6d2f762f6170706c652d6d757369632f6d2f696d616765732f6f766572766965772f69636f6e5f6170706c655f6d757369635f5f763965706e366d316f6a36755f6c617267652e706e67" width="84" height="84">  <img src="http://millionmedia.com/wp-content/uploads/2014/11/deezer-logo-circle.png" width="84" height="84">
+ <img src="https://camo.githubusercontent.com/5eda29273e871718abf8f4f7f4da48dbe677a7bb/68747470733a2f2f7777772e6170706c652e636f6d2f762f6170706c652d6d757369632f6d2f696d616765732f6f766572766965772f69636f6e5f6170706c655f6d757369635f5f763965706e366d316f6a36755f6c617267652e706e67" width="84" height="84">  <img src="https://cdn.iconscout.com/icon/free/png-512/deezer-461785.png" width="84" height="84">
 
 A Python library to download songs using:
 - **Apple Music API** for finding the songs and tagging ID3 metadata
@@ -11,7 +11,7 @@ As for songs searching support:
 - Loading song names from a file _(-f)_
 - Validation and modifying of chosen songs _(-c)_
 - Download an entire album _(-a)_
-- **currently beta:** Download an entire playlist - new feature! _(-p)_
+- **currently beta:** Download with an Apple Music link (-l) an entire playlist/album - new feature! _(-l)_
 
 At last it supports uploading downloaded files to WeTransfer _(-u)_! Useful if you use a remote server.
 
