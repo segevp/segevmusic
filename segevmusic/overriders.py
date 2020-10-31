@@ -2,7 +2,8 @@
 import deemix.utils.localpaths as localpaths
 from deemix.api.deezer import TrackFormats
 from deemix.app.settings import OverwriteOption, FeaturesOption
-from os.path import isdir, isfile, join, realpath
+from deemix.utils import checkFolder
+from os.path import isdir, isfile, join
 from os import makedirs
 import logging
 
@@ -16,7 +17,7 @@ from deemix import __version__ as deemixVersion
 
 # settings_init dependencies
 DEFAULT_SETTINGS = {
-    "downloadLocation": join(realpath('.'), 'deemix Music'),
+    "downloadLocation": str(localpaths.getMusicFolder()),
     "tracknameTemplate": "%isrc%",
     "albumTracknameTemplate": "%tracknumber% - %title%",
     "playlistTracknameTemplate": "%position% - %artist% - %title%",
@@ -86,6 +87,7 @@ DEFAULT_SETTINGS = {
         "copyright": False,
         "composer": False,
         "involvedPeople": False,
+        "source": False,
         "savePlaylistAsCompilation": False,
         "useNullSeparator": False,
         "saveID3v1": True,
@@ -99,12 +101,9 @@ logger = logging.getLogger('deemix')
 logger.setLevel(logging.WARN)
 
 
-def settings_init(self, configFolder=None):
+def settings_init(self, configFolder=None, overwriteDownloadFolder=None):
     self.settings = {}
-    self.configFolder = configFolder
-    if not self.configFolder:
-        self.configFolder = localpaths.getConfigFolder()
-    self.configFolder = Path(self.configFolder)
+    self.configFolder = Path(configFolder or localpaths.getConfigFolder())
 
     # Create config folder if it doesn't exsist
     makedirs(self.configFolder, exist_ok=True)
@@ -118,7 +117,28 @@ def settings_init(self, configFolder=None):
     with open(self.configFolder / 'config.json', 'r') as configFile:
         self.settings = json.load(configFile)
 
-    self.settingsCheck()
+    # Check for overwriteDownloadFolder
+    # This prevents the creation of the original download folder when
+    # using overwriteDownloadFolder
+    originalDownloadFolder = self.settings['downloadLocation']
+    if overwriteDownloadFolder:
+        overwriteDownloadFolder = str(overwriteDownloadFolder)
+        self.settings['downloadLocation'] = overwriteDownloadFolder
+
+    # Make sure the download path exsits, fallback to default
+    invalidDownloadFolder = False
+    if self.settings['downloadLocation'] == "" or not checkFolder(self.settings['downloadLocation']):
+        self.settings['downloadLocation'] = DEFAULT_SETTINGS['downloadLocation']
+        originalDownloadFolder = self.settings['downloadLocation']
+        invalidDownloadFolder = True
+
+    # Check the settings and save them if something changed
+    if self.settingsCheck() > 0 or invalidDownloadFolder:
+        makedirs(self.settings['downloadLocation'], exist_ok=True)
+        self.settings['downloadLocation'] = originalDownloadFolder  # Prevents the saving of the overwritten path
+        self.saveSettings()
+        self.settings[
+            'downloadLocation'] = overwriteDownloadFolder or originalDownloadFolder  # Restores the correct path
 
     # LOGFILES
 
