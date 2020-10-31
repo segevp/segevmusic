@@ -11,7 +11,7 @@ As for songs searching support:
 - Loading song names from a file _(-f)_
 - Validation and modifying of chosen songs _(-c)_
 - Download an entire album _(-a)_
-- **currently beta:** Download with an Apple Music link (-l) an entire playlist/album - new feature! _(-l)_
+- Download with an Apple Music link _(-l)_ an entire playlist/album - **new feature!** (currently beta)
 
 At last it supports uploading downloaded files to WeTransfer _(-u)_! Useful if you use a remote server.
 
@@ -28,8 +28,6 @@ Or via SSH:
 ```bash
 pip3 install git+ssh://git@github.com/segevp/segevmusic.git
 ```
-
-<img src="https://camo.githubusercontent.com/355adb6374f51d5c0fb084e709e7d3c09361c698/687474703a2f2f7365676576666c69782e746b3a383030302f612e676966"/>
 
 ## Usage
 ```
@@ -65,5 +63,4 @@ import segevmusic.music_downloader
 
 if __name__ == "__main__":
     segevmusic.music_downloader.main()
-
 ```

@@ -22,7 +22,7 @@ class MusicDownloader:
         self.file_path = args.file
         self.all_album = args.album
         self.link = args.link
-        self.to_check = args.check if not any((args.album, args.playlist)) else False
+        self.to_check = args.check if not any((args.album, args.link)) else False
 
         self.app = DeezerFunctions.login(ARL, self.download_path)
         self.tagger = Tagger(self.download_path)

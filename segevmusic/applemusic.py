@@ -1,9 +1,9 @@
-from segevmusic.utils import get_language, choose_item, update_url_param
+from segevmusic.utils import get_language, choose_item, update_url_param, has_hebrew
 from requests import get
 from typing import List
 from urllib.parse import quote
 from re import search
-from json import loads
+from json import load, loads
 
 ARTWORK_EMBED_SIZE = 1400
 ARTWORK_REPR_SIZE = 600
@@ -19,6 +19,9 @@ AM_LANGUAGE_PARAM = 'l'
 
 SONG_SEARCH_LIMIT = 1
 ALBUM_SEARCH_LIMIT = 5
+
+with open('genres.json', 'rb') as f:
+    GENRES_TRANSLATION = load(f)
 
 
 class AMObject:
@@ -103,7 +106,7 @@ class AMSong(AMObject):
 
     def __init__(self, json=None):
         super().__init__(json)
-        self.album = AMAlbum()
+        self.album = None
 
     @property
     def disc_number(self):
@@ -267,13 +270,16 @@ class AMFunctions:
     @classmethod
     def translate_item(cls, item: AMSong or AMAlbum):
         """
-        If a language that's not english was chosen for metadata,
-        translates genres to English.
-        Returns 0 if succeed, and 1 otherwise.
+        Translates first genre to English.
         """
-        patched_url = update_url_param(item.url, AM_LANGUAGE_PARAM, 'en')
-        album = cls.get_item_from_url(patched_url)
-        item.genres = album.genres
+        i = 0
+        genre = item.genres[i]
+        if not has_hebrew(genre):
+            pass
+        elif genre in GENRES_TRANSLATION:
+            item.genres[i] = GENRES_TRANSLATION[genre]
+        else:
+            item.genres[i] = AMFunctions.get_item_from_url(update_url_param(item.url, 'l', 'en')).genres[i]
 
     @classmethod
     def _search_item(cls, name: str, item_type: AMSong or AMAlbum, limit: int) -> AMSong or AMAlbum:
@@ -296,7 +302,8 @@ class AMFunctions:
             return AMSong()
         cls.attach_album(song)
         if get_language(name) == 'he':
-            song.genres = song.album.genres
+            cls.translate_item(song)
+            # song.genres = song.album.genres
         return song
 
     @classmethod
@@ -308,13 +315,16 @@ class AMFunctions:
         return album if album else AMAlbum()
 
     @classmethod
-    def get_item_from_url(cls, url: str):
+    def get_item_from_url(cls, url: str, force_hebrew=False):
+        if force_hebrew:
+            url = update_url_param(url, AM_LANGUAGE_PARAM, 'he')
         response = get(url).content
         m = search(AM_REGEX, response)
         try:
             json = loads(m.group(1))
             json_data = loads(json[list(json.keys())[1]])['d'][0]
-        except KeyError:
+        except (KeyError, AttributeError):
+            print("--> ERROR: The given URL is not supported!")
             return None
         item_type = json_data['type']
         return cls.AM_TYPES[item_type](json_data) if item_type in cls.AM_TYPES else json_data
