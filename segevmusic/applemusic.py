@@ -1,10 +1,10 @@
 from segevmusic.utils import get_language, choose_item, update_url_param, has_hebrew
-from os.path import join, dirname
+from segevmusic._genres import GENRES_TRANSLATION
 from requests import get
 from typing import List
 from urllib.parse import quote
 from re import search
-from json import load, loads
+from json import loads
 
 ARTWORK_EMBED_SIZE = 1400
 ARTWORK_REPR_SIZE = 600
@@ -20,9 +20,6 @@ AM_LANGUAGE_PARAM = 'l'
 
 SONG_SEARCH_LIMIT = 1
 ALBUM_SEARCH_LIMIT = 5
-
-with open(join(dirname(__file__), 'genres.json'), 'rb') as f:
-    GENRES_TRANSLATION = load(f)
 
 
 class AMObject:
