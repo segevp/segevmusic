@@ -31,7 +31,7 @@ pip3 install git+ssh://git@github.com/segevp/segevmusic.git
 
 ## Usage
 ```
-segevmusic [-h] [-f FILE] [-u] [-a | -p PLAYLIST] [-d] [path]
+segevmusic [-h] [-f FILE] [-u] [-a | -l LINK] [-d] [path]
 
 download music effortlessly
 
@@ -43,8 +43,8 @@ optional arguments:
   -f FILE, --file FILE  load a file with songs list
   -u, --upload          upload songs to wetransfer
   -a, --album           download an entire album
-  -p PLAYLIST, --playlist PLAYLIST
-                        download an entire playlist
+  -l LINK, --link LINK  download an entire collection (playlist/album) from a
+                        given link
   -d, --dont-validate   don't validate chosen songs
 ```
 
