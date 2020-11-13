@@ -114,22 +114,21 @@ class MusicDownloader:
                 print(f"{index}) {song}")
         return enum_songs
 
-    def _requery(self, human_index: int):
+    def _requery(self, bad_song: AMSong):
         """
         Runs query with a larger query limit and prompts user to choose the correct song.
         Replaces bad song with correct song.
         """
-        index = human_index - 1
-        bad_song = list(self.added_songs)[index]
         search_term = self.added_songs[bad_song]
         chosen_song = self._search_song(search_term, REQUERY_LIMIT)
         del self.added_songs[bad_song]
         print(f"--> Replaced '{bad_song.short_name}' with '{chosen_song.short_name}'")
 
     def offer_fix(self):
-        bad_indexes = get_indexes(len(self.added_songs))
+        bad_indexes = [index - 1 for index in get_indexes(len(self.added_songs))]
+        bad_songs = list(self.added_songs)
         for bad_index in bad_indexes:
-            self._requery(bad_index)
+            self._requery(bad_songs[bad_index])
 
     def _update_downloaded_songs(self):
         """

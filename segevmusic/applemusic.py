@@ -30,6 +30,7 @@ class AMObject:
 
     def __init__(self, json=None):
         self.json = json
+        self.language = None
 
     @property
     def id(self):
@@ -231,7 +232,7 @@ class AMFunctions:
 
     @staticmethod
     def json_to_items(json: dict, items_type: type) -> List[AMObject]:
-        if not len(json):
+        if not json:
             return []
         item_key = 'songs' if items_type == AMSong else 'albums'
         items = [items_type(song_json) for song_json in json[item_key]['data']]
@@ -246,6 +247,7 @@ class AMFunctions:
         # No items case:
         if not len(items):
             print(f"--> ERROR: Nothing found for '{query_term}'; Check for spelling errors.")
+            return AMObject()
         # One item case:
         elif len(items) == 1:
             return items[0]
@@ -263,7 +265,7 @@ class AMFunctions:
         """
         if album:
             song.album = album
-        song.album = cls.get_item_from_url(song.url)
+        song.album = cls.get_item_from_url(song.url, song.language)
 
     @classmethod
     def translate_item(cls, item: AMSong or AMAlbum):
@@ -284,6 +286,7 @@ class AMFunctions:
         query_results = cls.query(name, limit)
         items = cls.json_to_items(query_results, item_type)
         item = cls.get_item(items, name)
+        item.language = get_language(name)
         return item
 
     @classmethod
@@ -299,9 +302,9 @@ class AMFunctions:
         if not song:
             return AMSong()
         cls.attach_album(song)
-        if get_language(name) == 'he':
+        if song.language == 'he':
             cls.translate_item(song)
-            # song.genres = song.album.genres
+            cls.translate_item(song.album)
         return song
 
     @classmethod
@@ -313,9 +316,9 @@ class AMFunctions:
         return album if album else AMAlbum()
 
     @classmethod
-    def get_item_from_url(cls, url: str, force_hebrew=False):
-        if force_hebrew:
-            url = update_url_param(url, AM_LANGUAGE_PARAM, 'he')
+    def get_item_from_url(cls, url: str, force_language: str = None):
+        if force_language:
+            url = update_url_param(url, AM_LANGUAGE_PARAM, force_language)
         response = get(url).content
         m = search(AM_REGEX, response)
         try:
