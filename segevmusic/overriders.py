@@ -82,7 +82,7 @@ DEFAULT_SETTINGS = {
         "bpm": True,
         "replayGain": False,
         "label": False,
-        "lyrics": False,
+        "lyrics": True,
         "syncedLyrics": False,
         "copyright": False,
         "composer": False,
