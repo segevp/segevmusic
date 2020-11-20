@@ -1,6 +1,6 @@
 # settings_init dependencies
 import deemix.utils.localpaths as localpaths
-from deemix.api.deezer import TrackFormats
+from deezer import TrackFormats
 from deemix.app.settings import OverwriteOption, FeaturesOption
 from deemix.utils import checkFolder
 from os.path import isdir, isfile, join
