@@ -159,6 +159,7 @@ class AMAlbum(AMObject):
 
     def __init__(self, json=None):
         super().__init__(json)
+        self.found_songs = None
 
     @property
     def album_name(self):
@@ -180,13 +181,13 @@ class AMAlbum(AMObject):
 
     @property
     def songs(self) -> List[AMSong]:
-        found_songs = []
-        for track in self.json['relationships']['tracks']['data']:
-            if track['type'] == 'songs':
-                song = AMSong(track)
-                song.genres = self.genres
-                found_songs.append(AMSong(track))
-        return found_songs
+        if not self.found_songs:
+            for track in self.json['relationships']['tracks']['data']:
+                if track['type'] == 'songs':
+                    song = AMSong(track)
+                    song.genres = self.genres
+                    self.found_songs.append(AMSong(track))
+        return self.found_songs
 
     def __iter__(self):
         for song in self.songs:
@@ -199,10 +200,17 @@ class AMAlbum(AMObject):
 class AMPlaylist:
     def __init__(self, json=None):
         self.json = json
+        self.found_songs = None
 
     @property
     def songs(self) -> List[AMSong]:
-        return [AMSong(song) for song in self.json['relationships']['tracks']['data'] if song['type'] == 'songs']
+        if not self.found_songs:
+            for track in self.json['relationships']['tracks']['data']:
+                if track['type'] == 'songs':
+                    song = AMSong(track)
+                    AMFunctions.translate_item(song)
+                    self.found_songs.append(song)
+        return self.found_songs
 
     def __iter__(self):
         for song in self.songs:
@@ -279,7 +287,9 @@ class AMFunctions:
         elif genre in GENRES_TRANSLATION:
             item.genres[i] = GENRES_TRANSLATION[genre]
         else:
-            item.genres[i] = AMFunctions.get_item_from_url(update_url_param(item.url, 'l', 'en')).genres[i]
+            translated_genre = AMFunctions.get_item_from_url(update_url_param(item.url, 'l', 'en')).genres[i]
+            item.genres[i] = translated_genre
+            GENRES_TRANSLATION[genre] = translated_genre
 
     @classmethod
     def _search_item(cls, name: str, item_type: AMSong or AMAlbum, limit: int) -> AMSong or AMAlbum:
