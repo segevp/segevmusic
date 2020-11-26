@@ -159,7 +159,7 @@ class AMAlbum(AMObject):
 
     def __init__(self, json=None):
         super().__init__(json)
-        self.found_songs = None
+        self.found_songs = []
 
     @property
     def album_name(self):
@@ -200,7 +200,7 @@ class AMAlbum(AMObject):
 class AMPlaylist:
     def __init__(self, json=None):
         self.json = json
-        self.found_songs = None
+        self.found_songs = []
 
     @property
     def songs(self) -> List[AMSong]:
