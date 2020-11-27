@@ -83,7 +83,7 @@ DEFAULT_SETTINGS = {
         "replayGain": False,
         "label": False,
         "lyrics": True,
-        "syncedLyrics": False,
+        "syncedLyrics": True,
         "copyright": False,
         "composer": False,
         "involvedPeople": False,
