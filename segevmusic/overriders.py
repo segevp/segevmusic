@@ -71,7 +71,7 @@ DEFAULT_SETTINGS = {
         "trackTotal": True,
         "discNumber": True,
         "discTotal": True,
-        "albumArtist": False,
+        "albumArtist": True,
         "genre": False,
         "year": False,
         "date": False,
