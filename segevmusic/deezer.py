@@ -54,7 +54,10 @@ class DeezerFunctions:
         download_path = app.set.settings['downloadLocation']
         for song in songs:
             print(f"--> Downloading '{song.short_name}'...", end='')
-            app.downloadLink([cls._amsong_to_url(song)])
+            try:
+                app.downloadLink([cls._amsong_to_url(song)])
+            except Exception as e:
+                print(Exception)
             stdout.flush()
             if cls.song_exists(song, download_path):
                 print(f"\r--> Downloaded '{song.short_name}'!")
