@@ -36,7 +36,11 @@ class Tagger:
         :return:
         """
         file_path = self.generate_isrc_path(song)
-        id3 = ID3(file_path)
+        try:
+            id3 = ID3(file_path)
+        except Exception as e:
+            print(f"--> ERROR: Internal mutagen exception: {e}")
+            return None
         errors = []
         for key, tag in TAGS.items():
             try:

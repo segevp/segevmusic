@@ -102,7 +102,7 @@ class MusicDownloader:
         self._add_songs(album)
 
     def get_songs_link(self):
-        collection = AMFunctions.get_item_from_url(self.link)
+        collection = AMFunctions.get_item_from_url(self.link, 'he')
         if collection:
             self._add_songs(collection)
 
