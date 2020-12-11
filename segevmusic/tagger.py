@@ -11,7 +11,7 @@ TAGS = {
     "record_label": lambda amsong: TPUB(text=amsong.album.record_label),
     "copyright": lambda amsong: TCOP(text=amsong.album.copyright),
     "genre": lambda amsong: TCON(text=amsong.genres[0]),
-    "album_artist": lambda amsong: TPE2(text=amsong.album.artist_name),
+    "album_artist": lambda amsong: TPE2(text=amsong.album.artist_name) if amsong.album else None,
     "song_artist": lambda amsong: TPE1(text=amsong.artist_name),
     "itunes_advisory": lambda amsong: TXXX(desc="ITUNESADVISORY", text="1") if amsong.is_explicit else None,
     "release_date": lambda amsong: TDRC(text=amsong.release_date),
