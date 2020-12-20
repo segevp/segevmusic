@@ -92,7 +92,7 @@ DEFAULT_SETTINGS = {
         "useNullSeparator": False,
         "saveID3v1": True,
         "multiArtistSeparator": "default",
-        "singleAlbumArtist": False,
+        "singleAlbumArtist": True,
         "coverDescriptionUTF8": False
     }
 }
