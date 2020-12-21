@@ -166,7 +166,10 @@ class MusicDownloader:
         format is decided in the 'Tagger.generate_good_path' function.
         """
         for song in self.downloaded_songs:
-            song_file = self.tagger.rename_isrc_path(song)
+            try:
+                  song_file = self.tagger.rename_isrc_path(song)
+            except FileNotFoundError:
+                  continue
             self.songs_files.append(song_file)
 
     def upload(self):
