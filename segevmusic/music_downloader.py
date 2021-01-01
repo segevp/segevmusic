@@ -108,6 +108,8 @@ class MusicDownloader:
             if not song_id:
                 self._add_songs(collection)
             else:
+                song = [collection[song_id]]
+                song.album = collection
                 self._add_songs([collection[song_id]])
 
     def list_songs(self, to_print=True) -> enumerate:

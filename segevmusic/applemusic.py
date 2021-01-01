@@ -160,6 +160,7 @@ class AMAlbum(AMObject):
     def __init__(self, json=None):
         super().__init__(json)
         self.found_songs = []
+        AMFunctions.translate_item(self)
 
     @property
     def album_name(self):
