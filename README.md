@@ -43,8 +43,7 @@ optional arguments:
   -f FILE, --file FILE  load a file with songs list
   -u, --upload          upload songs to wetransfer
   -a, --album           download an entire album
-  -l LINK, --link LINK  download an entire collection (playlist/album) from a
-                        given link
+  -l LINK, --link LINK  download playlists, albums or songs from a given link
   -d, --dont-validate   don't validate chosen songs
 ```
 

@@ -79,6 +79,15 @@ def convert_platform_link(link: str, wanted_platform: str):
     return json['linksByPlatform'][wanted_platform]['url']
 
 
+def get_url_param_value(url: str, param: str):
+    re_match = search(r"[?&](" + param + "=[^&]+).*$", url)
+    if re_match:
+        param_value = re_match.group(1)
+        return param_value.split('=')[1]
+    print(f"--> WARNING: The parameter {param} was not found in the url.")
+    return None
+
+
 def update_url_param(url: str, param: str, value: str):
     url_split = url.split('?')
     re_match = search(r"[?&](" + param + "=[^&]+).*$", url)

@@ -2,7 +2,7 @@ from segevmusic.tagger import Tagger
 from segevmusic.applemusic import AMFunctions, AMSong
 from segevmusic.deezr import DeezerFunctions
 from segevmusic.wetransfer import WTSession
-from segevmusic.utils import get_lines, get_indexes, newline
+from segevmusic.utils import get_lines, get_indexes, newline, get_url_param_value
 from shutil import rmtree
 from os.path import realpath
 from argparse import ArgumentParser, Namespace
@@ -45,7 +45,7 @@ class MusicDownloader:
         parser.add_argument("-u", "--upload", help="upload songs to wetransfer", action="store_true")
         group = parser.add_mutually_exclusive_group()
         group.add_argument("-a", "--album", help="download an entire album", action="store_true")
-        group.add_argument("-l", "--link", help="download an entire collection (playlist/album) from a given link",
+        group.add_argument("-l", "--link", help="download playlists, albums or songs from a given link",
                            type=str)
         parser.add_argument("-d", "--dont-validate", help="don't validate chosen songs",
                             action="store_false", dest='check')
@@ -104,7 +104,11 @@ class MusicDownloader:
     def get_songs_link(self):
         collection = AMFunctions.get_item_from_url(self.link, 'he')
         if collection:
-            self._add_songs(collection)
+            song_id = get_url_param_value(self.link, 'i')
+            if not song_id:
+                self._add_songs(collection)
+            else:
+                self._add_songs([collection[song_id]])
 
     def list_songs(self, to_print=True) -> enumerate:
         enum_songs = enumerate(self.added_songs, start=1)
@@ -167,9 +171,9 @@ class MusicDownloader:
         """
         for song in self.downloaded_songs:
             try:
-                  song_file = self.tagger.rename_isrc_path(song)
+                song_file = self.tagger.rename_isrc_path(song)
             except FileNotFoundError:
-                  continue
+                continue
             self.songs_files.append(song_file)
 
     def upload(self):

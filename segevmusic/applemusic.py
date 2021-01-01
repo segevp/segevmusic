@@ -196,6 +196,12 @@ class AMAlbum(AMObject):
     def __str__(self):
         return "Album " + super(AMAlbum, self).__str__() + super(AMAlbum, self)._str_part_two()
 
+    def __getitem__(self, item):
+        for song in self.songs:
+            if song.id == item:
+                return song
+        raise IndexError(f"The id {item} was not found in this album.")
+
 
 class AMPlaylist:
     def __init__(self, json=None):
