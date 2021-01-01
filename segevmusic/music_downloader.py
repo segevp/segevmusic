@@ -1,6 +1,6 @@
 from segevmusic.tagger import Tagger
 from segevmusic.applemusic import AMFunctions, AMSong
-from segevmusic.deezer import DeezerFunctions
+from segevmusic.deezr import DeezerFunctions
 from segevmusic.wetransfer import WTSession
 from segevmusic.utils import get_lines, get_indexes, newline
 from shutil import rmtree
