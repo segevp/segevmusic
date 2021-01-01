@@ -39,7 +39,7 @@ class MusicDownloader:
         Get user arguments
         :return: The parsed arguments inside an argparse.Namespace object
         """
-        parser = ArgumentParser(description="download music effortlessly")
+        parser = ArgumentParser(prog='segevmusic', description="download music effortlessly")
         parser.add_argument("path", help="songs download path", nargs='?', default='./Songs')
         parser.add_argument("-f", "--file", help="load a file with songs list", type=str)
         parser.add_argument("-u", "--upload", help="upload songs to wetransfer", action="store_true")
