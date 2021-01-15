@@ -14,7 +14,8 @@ AMOBJECT_REPR_SECOND = "({release_date}){explicit}"
 AMSONG_REPR_MIDDLE = " // Album: {album_name} "
 AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/" \
            r"search.json?types=songs,albums&term={name}&limit={limit}&l={language}"
-ITUNES_QUERY = 'https://itunes.apple.com/il/lookup?id={id}&entity=song&l={language}'
+ITUNES_SONG_QUERY = 'https://itunes.apple.com/il/lookup?id={id}&entity=song&l={language}'
+ITUNES_ALBUM_QUERY = 'https://itunes.apple.com/il/lookup?id={id}&entity=album&l={language}'
 AM_REGEX = b'<script type="fastboot/shoebox" id="shoebox-media-api-cache-amp-music">(.*?)</script>'
 AM_LANGUAGE_PARAM = 'l'
 
@@ -143,7 +144,10 @@ class AMSong(AMObject):
         If album metadata was not fetched, artwork will be returned from the song itself.
         """
         if prefer_album and self.album:
-            return self.album.get_artwork(w, h)
+            try:
+                return self.album.get_artwork(w, h)
+            except KeyError:
+                pass
         return super(AMSong, self).get_artwork(w, h)
 
     def __str__(self):
@@ -217,7 +221,26 @@ class AMPlaylist:
                     song = AMSong(track)
                     AMFunctions.translate_item(song)
                     self.found_songs.append(song)
+            self.update_metadata()
         return self.found_songs
+
+    def update_metadata(self):
+        song_ids = [song.id for song in self.songs]
+        results = AMFunctions.query_itunes(','.join(song_ids), query_album=True)
+        results = AMFunctions.itunes_results_to_dict(results)
+        for song in self.found_songs:
+            album_id = song.album_id_from_song_url()
+            itunes_album = results['collections'][album_id]
+            itunes_song = results['tracks'][song.id]
+            song.album = AMAlbum({
+                'id': album_id,
+                'attributes': {
+                    'copyright': itunes_album['copyright'],
+                    'artistName': itunes_album['artistName'],
+                }
+            })
+            song.json['attributes']['trackNumber'] = f"{itunes_song['trackNumber']}/{itunes_song['trackCount']}"
+            song.json['attributes']['discNumber'] = f"{itunes_song['discNumber']}/{itunes_song['discCount']}"
 
     def __iter__(self):
         for song in self.songs:
@@ -353,33 +376,46 @@ class AMFunctions:
         return ''.join(custom_url[:-1] + ['{w}x{h}bb.jpeg'])
 
     @staticmethod
-    def query_itunes(item_id: str, language: str = 'en'):
-        return get(ITUNES_QUERY.format(id=item_id, language=language)).json()['results']
+    def query_itunes(item_id: str, language: str = 'he', query_album=False):
+        query_url = ITUNES_SONG_QUERY if not query_album else ITUNES_ALBUM_QUERY
+        return get(query_url.format(id=item_id, language=language)).json()['results']
 
-    @classmethod
-    def itunes_to_song(cls, itunes_json: dict, album: AMAlbum = None) -> AMSong:
-        song = AMSong({
-            'id': itunes_json['trackId'],
-            'type': 'songs',
-            'href': None,
-            'attributes': {
-                'previews': [{'url': cls._artwork_url_customize(itunes_json['previewUrl'])}],
-                'artwork': {
-                    'width': ARTWORK_EMBED_SIZE,
-                    'height': ARTWORK_EMBED_SIZE,
-                    'url': itunes_json['artworkUrl100'],
-                },
-                'artistName': itunes_json['artistName'],
-                'url': itunes_json['trackViewUrl'],
-                'discNumber': itunes_json['discNumber'],
-                'genreNames': [itunes_json['primaryGenreName']] if not album else album.genres,
-                'durationInMillis': itunes_json['trackTimeMillis'],
-                'releaseDate': itunes_json['releaseDate'][:10],
-                'name': itunes_json['trackName'],
-                'isrc': None,
-                'albumName': itunes_json['collectionName'],
-                'trackNumber': itunes_json['trackNumber']
-            }
-        })
-        song.album = album
-        return song
+    @staticmethod
+    def itunes_results_to_dict(query_results):
+        results = {
+            'tracks': {},
+            'collections': {}
+        }
+        for result in query_results:
+            result_id = str(result[result_type + 'Id'])
+            result_type = result['wrapperType']
+            results[result_type + 's'][result_id] = result
+        return results
+
+    # @classmethod
+    # def itunes_to_song(cls, itunes_json: dict, album: AMAlbum = None) -> AMSong:
+    #     song = AMSong({
+    #         'id': itunes_json['trackId'],
+    #         'type': 'songs',
+    #         'href': None,
+    #         'attributes': {
+    #             'previews': [{'url': cls._artwork_url_customize(itunes_json['previewUrl'])}],
+    #             'artwork': {
+    #                 'width': ARTWORK_EMBED_SIZE,
+    #                 'height': ARTWORK_EMBED_SIZE,
+    #                 'url': itunes_json['artworkUrl100'],
+    #             },
+    #             'artistName': itunes_json['artistName'],
+    #             'url': itunes_json['trackViewUrl'],
+    #             'discNumber': itunes_json['discNumber'],
+    #             'genreNames': [itunes_json['primaryGenreName']] if not album else album.genres,
+    #             'durationInMillis': itunes_json['trackTimeMillis'],
+    #             'releaseDate': itunes_json['releaseDate'][:10],
+    #             'name': itunes_json['trackName'],
+    #             'isrc': None,
+    #             'albumName': itunes_json['collectionName'],
+    #             'trackNumber': itunes_json['trackNumber']
+    #         }
+    #     })
+    #     song.album = album
+    #     return song

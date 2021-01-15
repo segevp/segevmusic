@@ -15,7 +15,9 @@ TAGS = {
     "song_artist": lambda amsong: TPE1(text=amsong.artist_name),
     "itunes_advisory": lambda amsong: TXXX(desc="ITUNESADVISORY", text="1") if amsong.is_explicit else None,
     "release_date": lambda amsong: TDRC(text=amsong.release_date),
-    "artwork": lambda amsong: APIC(mime='image/jpeg', desc='cover', data=amsong.get_artwork(prefer_album=True))
+    "artwork": lambda amsong: APIC(mime='image/jpeg', desc='cover', data=amsong.get_artwork(prefer_album=True)),
+    "disc_position": lambda amsong: amsong.disc_number if '/' in amsong.disc_number else None,
+    "track_position": lambda amsong: amsong.track_number if '/' in amsong.track_number else None
 }
 ERROR_MSG = "--> For '{song}' failed tagging: {tags}"
 
@@ -48,7 +50,7 @@ class Tagger:
             except:
                 errors.append(key)
         id3.save(v1=2, v2_version=3, v23_sep='/')
-        self._print_errors(song, errors)
+        # self._print_errors(song, errors)
 
     def rename_isrc_path(self, amsong: AMSong) -> str:
         """
