@@ -50,7 +50,6 @@ class Tagger:
             except:
                 errors.append(key)
         id3.save(v1=2, v2_version=3, v23_sep='/')
-        # self._print_errors(song, errors)
 
     def rename_isrc_path(self, amsong: AMSong) -> str:
         """
@@ -80,8 +79,5 @@ class Tagger:
         Prints any given errors except when it's only an error with
         the iTunes Advisory tag.
         """
-        advisory = "itunes_advisory"
-        if advisory in errors:
-            errors.remove(advisory)
         if errors:
             print(ERROR_MSG.format(song=song.short_name, tags=errors))

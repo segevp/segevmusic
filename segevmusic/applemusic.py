@@ -347,7 +347,6 @@ class AMFunctions:
         cls.attach_album(song)
         if song.language == 'he':
             cls.translate_item(song)
-            # cls.translate_item(song.album)
         return song
 
     @classmethod
@@ -355,7 +354,6 @@ class AMFunctions:
         album = cls._search_item(name, AMAlbum, limit)
         if album:
             album = cls.get_item_from_url(album.url)
-            # cls.translate_item(album)
         return album if album else AMAlbum()
 
     @classmethod
@@ -394,31 +392,3 @@ class AMFunctions:
             result_id = str(result[result_type + 'Id'])
             results[result_type + 's'][result_id] = result
         return results
-
-    # @classmethod
-    # def itunes_to_song(cls, itunes_json: dict, album: AMAlbum = None) -> AMSong:
-    #     song = AMSong({
-    #         'id': itunes_json['trackId'],
-    #         'type': 'songs',
-    #         'href': None,
-    #         'attributes': {
-    #             'previews': [{'url': cls._artwork_url_customize(itunes_json['previewUrl'])}],
-    #             'artwork': {
-    #                 'width': ARTWORK_EMBED_SIZE,
-    #                 'height': ARTWORK_EMBED_SIZE,
-    #                 'url': itunes_json['artworkUrl100'],
-    #             },
-    #             'artistName': itunes_json['artistName'],
-    #             'url': itunes_json['trackViewUrl'],
-    #             'discNumber': itunes_json['discNumber'],
-    #             'genreNames': [itunes_json['primaryGenreName']] if not album else album.genres,
-    #             'durationInMillis': itunes_json['trackTimeMillis'],
-    #             'releaseDate': itunes_json['releaseDate'][:10],
-    #             'name': itunes_json['trackName'],
-    #             'isrc': None,
-    #             'albumName': itunes_json['collectionName'],
-    #             'trackNumber': itunes_json['trackNumber']
-    #         }
-    #     })
-    #     song.album = album
-    #     return song
