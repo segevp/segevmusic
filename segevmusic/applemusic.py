@@ -237,6 +237,7 @@ class AMPlaylist:
                 'attributes': {
                     'copyright': itunes_album['copyright'],
                     'artistName': itunes_album['artistName'],
+                    'genreNames': song.genres
                 }
             })
             song.json['attributes']['trackNumber'] = f"{itunes_song['trackNumber']}/{itunes_song['trackCount']}"
@@ -317,7 +318,7 @@ class AMFunctions:
         elif genre in GENRES_TRANSLATION:
             item.genres[i] = GENRES_TRANSLATION[genre]
         else:
-            translated_genre = AMFunctions.get_item_from_url(update_url_param(item.url, 'l', 'en')).genres[i]
+            translated_genre = cls.get_item_from_url(update_url_param(item.url, 'l', 'en')).genres[i]
             item.genres[i] = translated_genre
             GENRES_TRANSLATION[genre] = translated_genre
 
@@ -344,7 +345,7 @@ class AMFunctions:
         cls.attach_album(song)
         if song.language == 'he':
             cls.translate_item(song)
-            cls.translate_item(song.album)
+            # cls.translate_item(song.album)
         return song
 
     @classmethod
@@ -352,7 +353,7 @@ class AMFunctions:
         album = cls._search_item(name, AMAlbum, limit)
         if album:
             album = cls.get_item_from_url(album.url)
-            cls.translate_item(album)
+            # cls.translate_item(album)
         return album if album else AMAlbum()
 
     @classmethod

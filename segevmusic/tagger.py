@@ -1,5 +1,5 @@
 from segevmusic.applemusic import AMSong
-from mutagen.id3 import ID3, TXXX, TIT2, TPE1, TALB, TPE2, TCON, TPUB, TSRC, APIC, TCOP, TDRC
+from mutagen.id3 import ID3, TXXX, TIT2, TPE1, TALB, TPE2, TCON, TPUB, TSRC, APIC, TCOP, TDRC, TRCK, TPOS
 from os import replace
 from os.path import realpath, join
 from typing import List
@@ -16,8 +16,8 @@ TAGS = {
     "itunes_advisory": lambda amsong: TXXX(desc="ITUNESADVISORY", text="1") if amsong.is_explicit else None,
     "release_date": lambda amsong: TDRC(text=amsong.release_date),
     "artwork": lambda amsong: APIC(mime='image/jpeg', desc='cover', data=amsong.get_artwork(prefer_album=True)),
-    "disc_position": lambda amsong: amsong.disc_number if '/' in amsong.disc_number else None,
-    "track_position": lambda amsong: amsong.track_number if '/' in amsong.track_number else None
+    "disc_position": lambda amsong: TRCK(amsong.disc_number) if '/' in amsong.disc_number else None,
+    "track_position": lambda amsong: TPOS(amsong.track_number) if '/' in amsong.track_number else None
 }
 ERROR_MSG = "--> For '{song}' failed tagging: {tags}"
 
