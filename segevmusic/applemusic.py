@@ -232,14 +232,16 @@ class AMPlaylist:
             album_id = song.album_id_from_song_url()
             itunes_album = results['collections'][album_id]
             itunes_song = results['tracks'][song.id]
-            song.album = AMAlbum({
+            album_json = {
                 'id': album_id,
                 'attributes': {
-                    'copyright': itunes_album['copyright'],
                     'artistName': itunes_album['artistName'],
                     'genreNames': song.genres
                 }
-            })
+            }
+            if 'copyright' in itunes_album:
+                album_json['copyright'] = itunes_album['copyright']
+            song.album = AMAlbum(album_json)
             song.json['attributes']['trackNumber'] = f"{itunes_song['trackNumber']}/{itunes_song['trackCount']}"
             song.json['attributes']['discNumber'] = f"{itunes_song['discNumber']}/{itunes_song['discCount']}"
 
