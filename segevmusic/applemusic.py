@@ -361,7 +361,11 @@ class AMFunctions:
         if force_language:
             url = update_url_param(url, AM_LANGUAGE_PARAM, force_language)
         response = get(url).content
-        m = search(AM_REGEX, response)
+        return cls._get_item_from_html(response)
+
+    @classmethod
+    def _get_item_from_html(cls, html):
+        m = search(AM_REGEX, html)
         try:
             json = loads(m.group(1))
             json_data = loads(json[list(json.keys())[1]])['d'][0]
