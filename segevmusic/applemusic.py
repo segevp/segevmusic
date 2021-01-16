@@ -387,8 +387,8 @@ class AMFunctions:
             'collections': {}
         }
         for result in query_results:
-            result_id = str(result[result_type + 'Id'])
             result_type = result['wrapperType']
+            result_id = str(result[result_type + 'Id'])
             results[result_type + 's'][result_id] = result
         return results
 
