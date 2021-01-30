@@ -28,7 +28,6 @@ class MusicDownloader:
         self.tagger = Tagger(self.download_path)
 
         self.added_songs = {}
-        # self.search_term = []
         self.downloaded_songs = []
         self.songs_files = []
         self.wt_link = ''
@@ -203,6 +202,21 @@ class MusicDownloader:
         shutdown()
         rmtree('./config', ignore_errors=True)
         print("--> DONE!")
+
+    def download_songs(self, songs: Iterable[AMSong], upload=False):
+        self._add_songs(songs)
+        self.list_songs()
+        newline()
+        self.download()
+        newline()
+        self.tag()
+        self.rename()
+        if upload:
+            self.upload()
+        newline()
+        self.show_availability()
+        newline()
+        self.finish()
 
     def run(self):
         """
