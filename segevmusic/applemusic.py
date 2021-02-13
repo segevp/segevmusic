@@ -98,6 +98,9 @@ class AMObject:
     def __str__(self):
         return AMOBJECT_REPR_FIRST.format(name=self.name, artist_name=self.artist_name, album_name=self.album_name)
 
+    def __repr__(self):
+        return f"<{self.__str__()}>"
+
 
 class AMSong(AMObject):
     """
