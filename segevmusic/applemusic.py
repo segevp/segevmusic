@@ -32,6 +32,8 @@ class AMObject:
     def __init__(self, json=None):
         self.json = json
         self.language = None
+        if self:
+            AMFunctions.translate_item(self)
 
     @property
     def id(self):
@@ -107,9 +109,11 @@ class AMSong(AMObject):
     A class for handling Apple Music API's Song object.
     """
 
-    def __init__(self, json=None):
+    def __init__(self, json=None, album=None, add_album=True):
         super().__init__(json)
-        self.album = None
+        self.album = album
+        if self and add_album:
+            AMFunctions.attach_album(self)
 
     @property
     def disc_number(self):
@@ -167,7 +171,6 @@ class AMAlbum(AMObject):
     def __init__(self, json=None):
         super().__init__(json)
         self.found_songs = []
-        AMFunctions.translate_item(self)
 
     @property
     def album_name(self):
@@ -192,9 +195,9 @@ class AMAlbum(AMObject):
         if not self.found_songs:
             for track in self.json['relationships']['tracks']['data']:
                 if track['type'] == 'songs':
-                    song = AMSong(track)
+                    song = AMSong(track, self)
                     song.genres = self.genres
-                    self.found_songs.append(AMSong(track))
+                    self.found_songs.append(song)
         return self.found_songs
 
     def __iter__(self):
@@ -221,8 +224,7 @@ class AMPlaylist:
         if not self.found_songs:
             for track in self.json['relationships']['tracks']['data']:
                 if track['type'] == 'songs':
-                    song = AMSong(track)
-                    AMFunctions.translate_item(song)
+                    song = AMSong(track, add_album=False)
                     self.found_songs.append(song)
             self.update_metadata()
         return self.found_songs
@@ -347,9 +349,6 @@ class AMFunctions:
         song = cls._search_item(name, AMSong, limit)
         if not song:
             return AMSong()
-        cls.attach_album(song)
-        if song.language == 'he':
-            cls.translate_item(song)
         return song
 
     @classmethod
