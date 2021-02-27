@@ -1,4 +1,4 @@
-from segevmusic.utils import get_language, choose_item, update_url_param, has_hebrew
+from segevmusic.utils import get_language, choose_item, update_url_param, has_hebrew, get_url_param_value
 from segevmusic._genres import GENRES_TRANSLATION
 from requests import get
 from typing import List
@@ -236,7 +236,7 @@ class AMPlaylist:
         if not self.found_songs:
             for track in self.json['relationships']['tracks']['data']:
                 if track['type'] == 'songs':
-                    song = AMSong(track, add_album=False)
+                    song = AMSong(track, add_album=True)
                     self.found_songs.append(song)
             AMFunctions.update_metadata(self)
         return self.found_songs
@@ -354,7 +354,9 @@ class AMFunctions:
         if force_language:
             url = update_url_param(url, AM_LANGUAGE_PARAM, force_language)
         response = get(url).content
-        return cls._get_item_from_html(response)
+        item = cls._get_item_from_html(response)
+        index = get_url_param_value(url, 'i')
+        return item if not index else item[index]
 
     @classmethod
     def _get_item_from_html(cls, html):

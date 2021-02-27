@@ -84,7 +84,7 @@ def get_url_param_value(url: str, param: str):
     if re_match:
         param_value = re_match.group(1)
         return param_value.split('=')[1]
-    print(f"--> WARNING: The parameter {param} was not found in the url.")
+    # print(f"--> WARNING: The parameter {param} was not found in the url.")
     return None
 
 

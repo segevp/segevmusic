@@ -9,9 +9,10 @@ As for songs searching support:
 - Automatic song selection
 - Interactively searching for songs _(the default)_
 - Loading song names from a file _(-f)_
+    - **new feature:** Load a file that contains links! _(-x)_
 - Validation and modifying of chosen songs _(-c)_
 - Download an entire album _(-a)_
-- Download with an Apple Music link _(-l)_ an entire playlist/album - **new feature!** (currently beta)
+- Download with an Apple Music link _(-l)_ an entire playlist/album or just a single song
 
 At last it supports uploading downloaded files to WeTransfer _(-u)_! Useful if you use a remote server.
 
@@ -21,17 +22,17 @@ At last it supports uploading downloaded files to WeTransfer _(-u)_! Useful if y
 Installation is as simple as a one line of code:
 
 ```bash
-pip3 install git+https://github.com/segevp/segevmusic.git
+pip3 install -U git+https://github.com/segevp/segevmusic.git
 ```
 Or via SSH:
 
 ```bash
-pip3 install git+ssh://git@github.com/segevp/segevmusic.git
+pip3 install -U git+ssh://git@github.com/segevp/segevmusic.git
 ```
 
 ## Usage
 ```
-segevmusic [-h] [-f FILE] [-u] [-a | -l LINK] [-d] [path]
+segevmusic [-h] [-u] [-f FILE | -a | -l LINK] [-x] [-d] [path]
 
 download music effortlessly
 
@@ -40,10 +41,11 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -f FILE, --file FILE  load a file with songs list
   -u, --upload          upload songs to wetransfer
+  -f FILE, --file FILE  load a file with songs list
   -a, --album           download an entire album
   -l LINK, --link LINK  download playlists, albums or songs from a given link
+  -x, --links-file      the loaded file contains links
   -d, --dont-validate   don't validate chosen songs
 ```
 

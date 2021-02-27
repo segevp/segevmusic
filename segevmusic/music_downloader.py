@@ -2,7 +2,7 @@ from segevmusic.tagger import Tagger
 from segevmusic.applemusic import AMFunctions, AMSong
 from segevmusic.deezr import DeezerFunctions
 from segevmusic.wetransfer import WTSession
-from segevmusic.utils import get_lines, get_indexes, newline, get_url_param_value
+from segevmusic.utils import get_lines, get_indexes, newline
 from shutil import rmtree
 from os.path import realpath
 from argparse import ArgumentParser, Namespace
@@ -22,7 +22,8 @@ class MusicDownloader:
         self.file_path = args.file
         self.all_album = args.album
         self.link = args.link
-        self.to_check = args.check if not any((args.album, args.link)) else False
+        self.links = args.links
+        self.to_check = args.check if not any((args.album, args.link, args.links)) else False
 
         self.app = DeezerFunctions.login(ARL, self.download_path)
         self.tagger = Tagger(self.download_path)
@@ -40,12 +41,14 @@ class MusicDownloader:
         """
         parser = ArgumentParser(prog='segevmusic', description="download music effortlessly")
         parser.add_argument("path", help="songs download path", nargs='?', default='./Songs')
-        parser.add_argument("-f", "--file", help="load a file with songs list", type=str)
         parser.add_argument("-u", "--upload", help="upload songs to wetransfer", action="store_true")
         group = parser.add_mutually_exclusive_group()
+        group.add_argument("-f", "--file", help="load a file with songs list", type=str)
         group.add_argument("-a", "--album", help="download an entire album", action="store_true")
         group.add_argument("-l", "--link", help="download playlists, albums or songs from a given link",
                            type=str)
+        parser.add_argument("-x", "--links-file", help="the loaded file contains links", action="store_true",
+                            dest='links')
         parser.add_argument("-d", "--dont-validate", help="don't validate chosen songs",
                             action="store_false", dest='check')
         args = parser.parse_args()
@@ -89,8 +92,11 @@ class MusicDownloader:
         """
         This function reads given file lines and adds every song mentioned in the file.
         """
-        for song_name in get_lines(self.file_path):
-            self._search_song(song_name)
+        for line in get_lines(self.file_path):
+            if self.links:
+                self.get_songs_link(line)
+                continue
+            self._search_song(line)
 
     def get_songs_album(self):
         album = None
@@ -100,16 +106,10 @@ class MusicDownloader:
             album = AMFunctions.search_album(album_name)
         self._add_songs(album)
 
-    def get_songs_link(self):
-        collection = AMFunctions.get_item_from_url(self.link, 'he')
-        if collection:
-            song_id = get_url_param_value(self.link, 'i')
-            if not song_id:
-                self._add_songs(collection)
-            else:
-                song = [collection[song_id]]
-                song.album = collection
-                self._add_songs([collection[song_id]])
+    def get_songs_link(self, link: str):
+        item = AMFunctions.get_item_from_url(link, 'he')
+        songs = [item] if type(item) == AMSong else item
+        self._add_songs(songs)
 
     def list_songs(self, to_print=True) -> enumerate:
         enum_songs = enumerate(self.added_songs, start=1)
@@ -234,7 +234,7 @@ class MusicDownloader:
         elif self.all_album:
             self.get_songs_album()
         elif self.link:
-            self.get_songs_link()
+            self.get_songs_link(self.link)
         else:
             self.get_songs_interactive()
         newline()
