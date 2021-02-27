@@ -11,13 +11,13 @@ TAGS = {
     "record_label": lambda amsong: TPUB(text=amsong.album.record_label),
     "copyright": lambda amsong: TCOP(text=amsong.album.copyright),
     "genre": lambda amsong: TCON(text=amsong.genres[0]),
-    "album_artist": lambda amsong: TPE2(text=amsong.album.artist_name) if amsong.album else None,
+    "album_artist": lambda amsong: TPE2(text=amsong.album.artist_name),
     "song_artist": lambda amsong: TPE1(text=amsong.artist_name),
     "itunes_advisory": lambda amsong: TXXX(desc="ITUNESADVISORY", text="1") if amsong.is_explicit else None,
     "release_date": lambda amsong: TDRC(text=amsong.release_date),
     "artwork": lambda amsong: APIC(mime='image/jpeg', desc='cover', data=amsong.get_artwork(prefer_album=True)),
     "disc_position": lambda amsong: TRCK(amsong.disc_number) if '/' in amsong.disc_number else None,
-    "track_position": lambda amsong: TPOS(amsong.track_number) if '/' in amsong.track_number else None
+    "track_position": lambda amsong: TPOS(f"{amsong.track_number}/{amsong.album.track_count}")
 }
 ERROR_MSG = "--> For '{song}' failed tagging: {tags}"
 

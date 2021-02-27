@@ -29,10 +29,10 @@ class AMObject:
     Songs and Album objects.
     """
 
-    def __init__(self, json=None):
+    def __init__(self, json=None, translate=True):
         self.json = json
         self.language = None
-        if self:
+        if self and translate:
             AMFunctions.translate_item(self)
 
     @property
@@ -109,15 +109,19 @@ class AMSong(AMObject):
     A class for handling Apple Music API's Song object.
     """
 
-    def __init__(self, json=None, album=None, add_album=True):
-        super().__init__(json)
+    def __init__(self, json=None, album=None, add_album=True, translate=True):
+        super().__init__(json, translate)
         self.album = album
-        if self and add_album:
+        if (self and add_album) and not album:
             AMFunctions.attach_album(self)
 
     @property
     def disc_number(self):
         return self.json['attributes']['discNumber']
+
+    @disc_number.setter
+    def disc_number(self, value):
+        self.json['attributes']['discNumber'] = value
 
     @property
     def isrc(self):
@@ -130,6 +134,10 @@ class AMSong(AMObject):
     @property
     def track_number(self):
         return self.json['attributes']['trackNumber']
+
+    @track_number.setter
+    def track_number(self, value):
+        self.json['attributes']['trackNumber'] = value
 
     @property
     def preview(self):
@@ -190,12 +198,16 @@ class AMAlbum(AMObject):
     def track_count(self):
         return self.json['attributes']['trackCount']
 
+    @track_count.setter
+    def track_count(self, value):
+        self.json['attributes']['trackCount'] = value
+
     @property
     def songs(self) -> List[AMSong]:
         if not self.found_songs:
             for track in self.json['relationships']['tracks']['data']:
                 if track['type'] == 'songs':
-                    song = AMSong(track, self)
+                    song = AMSong(track, self, translate=False)
                     song.genres = self.genres
                     self.found_songs.append(song)
         return self.found_songs
@@ -226,29 +238,8 @@ class AMPlaylist:
                 if track['type'] == 'songs':
                     song = AMSong(track, add_album=False)
                     self.found_songs.append(song)
-            self.update_metadata()
+            AMFunctions.update_metadata(self)
         return self.found_songs
-
-    def update_metadata(self):
-        song_ids = [song.id for song in self.songs]
-        results = AMFunctions.query_itunes(','.join(song_ids), query_album=True)
-        results = AMFunctions.itunes_results_to_dict(results)
-        for song in self.found_songs:
-            album_id = song.album_id_from_song_url()
-            itunes_album = results['collections'][album_id]
-            itunes_song = results['tracks'][song.id]
-            album_json = {
-                'id': album_id,
-                'attributes': {
-                    'artistName': itunes_album['artistName'],
-                    'genreNames': song.genres
-                }
-            }
-            if 'copyright' in itunes_album:
-                album_json['copyright'] = itunes_album['copyright']
-            song.album = AMAlbum(album_json)
-            song.json['attributes']['trackNumber'] = f"{itunes_song['trackNumber']}/{itunes_song['trackCount']}"
-            song.json['attributes']['discNumber'] = f"{itunes_song['discNumber']}/{itunes_song['discCount']}"
 
     def __iter__(self):
         for song in self.songs:
@@ -398,3 +389,27 @@ class AMFunctions:
             result_id = str(result[result_type + 'Id'])
             results[result_type + 's'][result_id] = result
         return results
+
+    @classmethod
+    def update_metadata(cls, collection: AMAlbum or AMPlaylist, add_album=False):
+        song_ids = [song.id for song in collection.songs]
+        results = cls.query_itunes(','.join(song_ids), query_album=True)
+        results = cls.itunes_results_to_dict(results)
+        for song in collection.found_songs:
+            album_id = song.album_id_from_song_url()
+            itunes_song = results['tracks'][song.id]
+            if add_album:
+                itunes_album = results['collections'][album_id]
+                album_json = {
+                    'id': album_id,
+                    'attributes': {
+                        'artistName': itunes_album['artistName'],
+                        'genreNames': song.genres
+                    }
+                }
+                if 'copyright' in itunes_album:
+                    album_json['copyright'] = itunes_album['copyright']
+                song.album = AMAlbum(album_json)
+            song.track_number = str(itunes_song['trackNumber'])
+            song.album.track_count = str(itunes_song['trackCount'])
+            song.disc_number = f"{itunes_song['discNumber']}/{itunes_song['discCount']}"
