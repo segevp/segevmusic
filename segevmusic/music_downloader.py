@@ -10,8 +10,8 @@ from logging import shutdown
 from typing import Iterable
 
 REQUERY_LIMIT = 5
-ARL = "580c41d634e95fef3ef2858c148266fa5573e5bd802719ccf6d40222704f2fe19ec6a3ecf788ac2f37769bc904cac48eb5d6ce3f9eb14e" \
-      "8fcfd1a594202de4ca9a83c084f0c674c30e1665495d3596dbd938f9e657e21b1e2fa695e067b2ad41"
+ARL = "356666a6cf835e4b53f2cab90b2cc267b33b91df71bac5be26b942dbc8a6a054cff4e647414a8178a9c3f32b533d64d4cea09a10ee27e5" \
+      "d9028ad12ea46f9b248ab9ce7ce0e9ca62052b783b3b73fdf16b72879233caa057402954beeadd5d14"
 
 
 class MusicDownloader:
