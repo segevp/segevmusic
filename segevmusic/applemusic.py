@@ -236,9 +236,9 @@ class AMPlaylist:
         if not self.found_songs:
             for track in self.json['relationships']['tracks']['data']:
                 if track['type'] == 'songs':
-                    song = AMSong(track, add_album=True)
+                    song = AMSong(track, add_album=False)
                     self.found_songs.append(song)
-            AMFunctions.update_metadata(self)
+            AMFunctions.update_metadata(self, add_album=True)
         return self.found_songs
 
     def __iter__(self):
@@ -410,7 +410,7 @@ class AMFunctions:
                     }
                 }
                 if 'copyright' in itunes_album:
-                    album_json['copyright'] = itunes_album['copyright']
+                    album_json['attributes']['copyright'] = itunes_album['copyright']
                 song.album = AMAlbum(album_json)
             song.track_number = str(itunes_song['trackNumber'])
             song.album.track_count = str(itunes_song['trackCount'])
