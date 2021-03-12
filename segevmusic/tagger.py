@@ -16,8 +16,8 @@ TAGS = {
     "itunes_advisory": lambda amsong: TXXX(desc="ITUNESADVISORY", text="1") if amsong.is_explicit else None,
     "release_date": lambda amsong: TDRC(text=amsong.release_date),
     "artwork": lambda amsong: APIC(mime='image/jpeg', desc='cover', data=amsong.get_artwork(prefer_album=True)),
-    "disc_position": lambda amsong: TRCK(text=amsong.disc_number) if '/' in str(amsong.disc_number) else None,
-    "track_position": lambda amsong: TPOS(text=f"{amsong.track_number}/{amsong.album.track_count}")
+    "disc_position": lambda amsong: TPOS(text=amsong.disc_number) if '/' in str(amsong.disc_number) else None,
+    "track_position": lambda amsong: TRCK(text=f"{amsong.track_number}/{amsong.album.track_count}")
 }
 ERROR_MSG = "--> For '{song}' failed tagging: {tags}"
 
