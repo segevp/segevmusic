@@ -8,7 +8,7 @@ TAGS = {
     "song_name": lambda amsong: TIT2(text=amsong.name),
     "album_name": lambda amsong: TALB(text=amsong.album_name),
     "isrc": lambda amsong: TSRC(text=amsong.isrc),
-    "record_label": lambda amsong: TPUB(text=amsong.album.record_label),
+    "record_label": lambda amsong: TPUB(text=amsong.album.record_label) if amsong.album.record_label else None,
     "copyright": lambda amsong: TCOP(text=amsong.album.copyright),
     "genre": lambda amsong: TCON(text=amsong.genres[0]),
     "album_artist": lambda amsong: TPE2(text=amsong.album.artist_name),
@@ -16,8 +16,8 @@ TAGS = {
     "itunes_advisory": lambda amsong: TXXX(desc="ITUNESADVISORY", text="1") if amsong.is_explicit else None,
     "release_date": lambda amsong: TDRC(text=amsong.release_date),
     "artwork": lambda amsong: APIC(mime='image/jpeg', desc='cover', data=amsong.get_artwork(prefer_album=True)),
-    "disc_position": lambda amsong: TRCK(amsong.disc_number) if '/' in amsong.disc_number else None,
-    "track_position": lambda amsong: TPOS(f"{amsong.track_number}/{amsong.album.track_count}")
+    "disc_position": lambda amsong: TRCK(text=amsong.disc_number) if '/' in str(amsong.disc_number) else None,
+    "track_position": lambda amsong: TPOS(text=f"{amsong.track_number}/{amsong.album.track_count}")
 }
 ERROR_MSG = "--> For '{song}' failed tagging: {tags}"
 
@@ -46,7 +46,9 @@ class Tagger:
         errors = []
         for key, tag in TAGS.items():
             try:
-                id3.add(tag(song))
+                id3_tag = tag(song)
+                if id3_tag:
+                    id3.add(id3_tag)
             except:
                 errors.append(key)
         id3.save(v1=2, v2_version=3, v23_sep='/')

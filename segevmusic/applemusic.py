@@ -406,7 +406,8 @@ class AMFunctions:
                     'id': album_id,
                     'attributes': {
                         'artistName': itunes_album['artistName'],
-                        'genreNames': song.genres
+                        'genreNames': song.genres,
+                        'recordLabel': None
                     }
                 }
                 if 'copyright' in itunes_album:
