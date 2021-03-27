@@ -302,7 +302,7 @@ class AMFunctions:
         """
         if album:
             song.album = album
-        song.album = cls.get_item_from_url(song.url, song.language)
+        song.album = cls.get_item_from_url(song.url, song.language).album
 
     @classmethod
     def translate_item(cls, item: AMSong or AMAlbum):
