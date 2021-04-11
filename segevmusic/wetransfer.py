@@ -41,7 +41,11 @@ class WTSession(requests.Session):
         """
         r = self.get(WETRANSFER_URL)
         m = search(CSRF_REGEX, r.text)
-        self.headers.update({'X-CSRF-Token': m.group(1)})
+        new_headers = {
+            'x-csrf-token': m.group(1),
+            'x-requested-with': 'XMLHttpRequest',
+        }
+        self.headers.update(new_headers)
 
     def create_transfer_id(self, filenames: List[str], message: str) -> str:
         """Given a list of filenames and a message prepare for the link upload.
