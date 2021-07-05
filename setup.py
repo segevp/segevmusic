@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="segevmusic",
-    version="3.10.5",
+    version="3.10.6",
     author="Segev Pavin",
     author_email="macsegev@gmail.com",
     description="Downloading with Deezer and tagging with Apple Music",
@@ -20,6 +20,6 @@ setuptools.setup(
         "Topic :: Multimedia :: Sound/Audio"
     ],
     python_requires='>=3.6',
-    install_requires=['deemix>=2.0.5', 'mutagen'],
+    install_requires=['deemix>=2.0.5,<=2.0.16', 'deezer-py==0.0.15', 'mutagen'],
     entry_points={'console_scripts': ['segevmusic=segevmusic.music_downloader:main']}
 )
