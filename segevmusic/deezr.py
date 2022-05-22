@@ -1,15 +1,15 @@
-from segevmusic.overriders import cli_login, settings_init
+from segevmusic.overriders import load_settings, LogListener
 from os.path import realpath, join, exists
-from deemix.app.cli import cli
-from deemix.app.settings import Settings
 from typing import Iterable
 from sys import stdout
 
-DEEZER_ISRC_QUERY = r"https://api.deezer.com/2.0/track/isrc:{isrc}"
+from deezer import Deezer
+from deezer import TrackFormats
+from deemix.downloader import Downloader
+from deemix import generateDownloadObject
+from deemix.itemgen import GenerationError
 
-# Override deemix functions
-cli.login = cli_login
-Settings.__init__ = settings_init
+DEEZER_ISRC_QUERY = r"https://api.deezer.com/2.0/track/isrc:{isrc}"
 
 
 class DeezerFunctions:
@@ -18,15 +18,21 @@ class DeezerFunctions:
     """
 
     @staticmethod
-    def login(arl: str, songs_path: str = None):
+    def login(arl: str, songs_path=''):
         """
         Initializing Deezer session.
         """
         localpath = realpath('.')
         config_folder = join(localpath, 'config')
         songs_folder = realpath(songs_path) if songs_path else join(localpath, 'Songs')
-        app = cli(songs_folder, config_folder)
-        app.login(arl)
+        app = Deezer()
+
+        app.login_via_arl(arl)
+        while not app.logged_in:
+            arl = input("Enter your arl here: ")
+            app.login_via_arl(arl)
+        app.settings = load_settings(config_folder)
+        app.settings['downloadLocation'] = songs_folder
         return app
 
     @staticmethod
@@ -41,19 +47,30 @@ class DeezerFunctions:
         return exists(join(download_path, f"{song.isrc}.mp3"))
 
     @classmethod
-    def download(cls, songs: Iterable, app: cli):
+    def download(cls, songs: Iterable, app):
         """
         Downloads given deezer links.
         """
-        download_path = app.set.settings['downloadLocation']
+        download_path = app.settings['downloadLocation']
         for song in songs:
             print(f"--> Downloading '{song.short_name}'...", end='')
             try:
-                app.downloadLink([cls._amsong_to_url(song)])
+                cls.download_link(app, cls._amsong_to_url(song))
             except Exception as e:
-                print(Exception)
+                print(e)
             stdout.flush()
             if cls.song_exists(song, download_path):
                 print(f"\r--> Downloaded '{song.short_name}'!")
             else:
                 print(f"\r--> ERROR: Song '{song.short_name}' was not downloaded!")
+
+    @staticmethod
+    def download_link(app, link):
+        listener = LogListener()
+        bitrate = app.settings.get("maxBitrate", TrackFormats.MP3_320)
+        try:
+            obj = generateDownloadObject(app, link, bitrate, {}, listener)
+        except GenerationError as e:
+            print(f"{e.link}: {e.message}")
+            return False
+        Downloader(app, obj, app.settings, listener).start()
