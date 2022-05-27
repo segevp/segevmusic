@@ -1,8 +1,8 @@
 from segevmusic.tagger import Tagger
-from segevmusic.applemusic import AMFunctions, AMSong
+from segevmusic.applemusic import AMFunctions, AMSong, AM_DOMAIN
 from segevmusic.deezr import DeezerFunctions
 from segevmusic.wetransfer import WTSession
-from segevmusic.utils import get_lines, get_indexes, newline
+from segevmusic.utils import get_lines, get_indexes, newline, convert_platform_link
 from os.path import realpath
 from argparse import ArgumentParser, Namespace
 from typing import Iterable
@@ -107,6 +107,10 @@ class MusicDownloader:
         self._add_songs(album)
 
     def get_songs_link(self, link: str):
+        if 'apple.com' not in link:
+            link = convert_platform_link(link)
+            if not link:
+                return None
         item = AMFunctions.get_item_from_url(link, 'he')
         songs = [item] if type(item) == AMSong else item
         self._add_songs(songs)
@@ -242,7 +246,7 @@ class MusicDownloader:
         newline()
         self.show_availability()
         newline()
-        self.finish()
+        print("--> DONE!")
 
 
 def main():

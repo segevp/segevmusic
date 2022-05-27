@@ -9,10 +9,11 @@ As for songs searching support:
 - Automatic song selection
 - Interactively searching for songs _(the default)_
 - Loading song names from a file _(-f)_
-    - **new feature:** Load a file that contains links! _(-x)_
+- Loading a file that contains links! _(-x)_
 - Validation and modifying of chosen songs _(-c)_
 - Download an entire album _(-a)_
 - Download with an Apple Music link _(-l)_ an entire playlist/album or just a single song
+  - **NEW:** You can now give a link from various platforms! (Spotify, YouTube, Pandora, TIDAL, etc.)
 
 At last it supports uploading downloaded files to WeTransfer _(-u)_! Useful if you use a remote server.
 

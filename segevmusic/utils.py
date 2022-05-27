@@ -73,10 +73,15 @@ def newline():
     print("\n", end='')
 
 
-def convert_platform_link(link: str, wanted_platform: str):
+def convert_platform_link(link: str, wanted_platform: str = "appleMusic"):
     url = quote(link)
     json = get(ODESLI_URL.format(url=url)).json()
-    return json['linksByPlatform'][wanted_platform]['url']
+    try:
+        converted_url = json['linksByPlatform'][wanted_platform]['url']
+    except KeyError:
+        print("--> ERROR: Conversion failed; Try a different URL or search manually.")
+        return None
+    return converted_url
 
 
 def get_url_param_value(url: str, param: str):

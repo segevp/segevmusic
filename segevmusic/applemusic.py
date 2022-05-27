@@ -16,6 +16,7 @@ AM_QUERY = r"https://tools.applemediaservices.com/api/apple-media/music/IL/" \
            r"search.json?types=songs,albums&term={name}&limit={limit}&l={language}"
 ITUNES_SONG_QUERY = 'https://itunes.apple.com/il/lookup?id={id}&entity=song&l={language}'
 ITUNES_ALBUM_QUERY = 'https://itunes.apple.com/il/lookup?id={id}&entity=album&l={language}'
+AM_DOMAIN = 'apple.com'
 AM_REGEX = b'<script type="fastboot/shoebox" id="shoebox-media-api-cache-amp-music">(.*?)</script>'
 AM_LANGUAGE_PARAM = 'l'
 
