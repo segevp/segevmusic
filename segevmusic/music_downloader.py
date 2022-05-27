@@ -58,6 +58,8 @@ class MusicDownloader:
         self.added_songs.update({song: name})
 
     def _add_songs(self, songs: Iterable[AMSong]):
+        if not songs:
+            return None
         for song in songs:
             self._add_song(song, f'{song.name} {song.artist_name} {song.album_name}')
 
