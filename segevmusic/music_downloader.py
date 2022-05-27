@@ -3,10 +3,8 @@ from segevmusic.applemusic import AMFunctions, AMSong
 from segevmusic.deezr import DeezerFunctions
 from segevmusic.wetransfer import WTSession
 from segevmusic.utils import get_lines, get_indexes, newline
-from shutil import rmtree
 from os.path import realpath
 from argparse import ArgumentParser, Namespace
-from logging import shutdown
 from typing import Iterable
 
 REQUERY_LIMIT = 5
@@ -196,14 +194,6 @@ class MusicDownloader:
             newline()
             print(f"--> Your download is available at:\n{self.wt_link}")
 
-    @staticmethod
-    def finish():
-        """
-        Removes deemix config files and prints ending message.
-        """
-        shutdown()
-        print("--> DONE!")
-
     def download_songs(self, songs: Iterable[AMSong], upload=False):
         self._add_songs(songs)
         self.list_songs()
@@ -217,7 +207,7 @@ class MusicDownloader:
         newline()
         self.show_availability()
         newline()
-        self.finish()
+        print("--> DONE!")
 
     def run(self):
         """
@@ -228,7 +218,7 @@ class MusicDownloader:
         4) Renames the songs paths to human-convenient paths.
         5) Uploads the songs to wetransfer if the option was chosen
         6) Prints songs availability
-        7) Removes deemix config folders
+        7) Alerts when finished
         """
         if self.file_path:
             self.get_songs_file()
