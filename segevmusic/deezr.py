@@ -1,4 +1,4 @@
-from segevmusic.overriders import load_settings, LogListener
+from segevmusic.overriders import LogListener, DEFAULT_DEEMIX_SETTINGS
 from os.path import realpath, join, exists
 from typing import Iterable
 from sys import stdout
@@ -31,7 +31,7 @@ class DeezerFunctions:
         while not app.logged_in:
             arl = input("Enter your arl here: ")
             app.login_via_arl(arl)
-        app.settings = load_settings(config_folder)
+        app.settings = DEFAULT_DEEMIX_SETTINGS
         app.settings['downloadLocation'] = songs_folder
         return app
 

@@ -1,17 +1,13 @@
 import deemix.utils.localpaths as localpaths
 from deezer import TrackFormats
-from deemix.settings import OverwriteOption, FeaturesOption, save, check
-from pathlib import Path
-from os import makedirs
-import json
-from copy import deepcopy
+from deemix.settings import OverwriteOption, FeaturesOption
 from deemix.utils import formatListener
 
 WANTED_LOG_KEYS = {
     "progress",
     "failed"
 }
-DEFAULTS = {
+DEFAULT_DEEMIX_SETTINGS = {
     "downloadLocation": str(localpaths.getMusicFolder()),
     "tracknameTemplate": "%isrc%",
     "albumTracknameTemplate": "%tracknumber% - %title%",
@@ -102,24 +98,3 @@ class LogListener:
                 log_string = formatListener(key, value)
                 if log_string:
                     print(log_string)
-
-
-def load_settings(config_folder=None):
-    config_folder = Path(config_folder or localpaths.getConfigFolder())
-    makedirs(config_folder, exist_ok=True)  # Create config folder if it doesn't exsist
-    if not (config_folder / 'config.json').is_file():
-        save(DEFAULTS, config_folder)  # Create config file if it doesn't exsist
-
-    # Read config file
-    with open(config_folder / 'config.json', 'r', encoding="utf-8") as configFile:
-        try:
-            settings = json.load(configFile)
-        except json.decoder.JSONDecodeError:
-            save(DEFAULTS, config_folder)
-            settings = deepcopy(DEFAULTS)
-        except Exception:
-            settings = deepcopy(DEFAULTS)
-
-    if check(settings) > 0:
-        save(settings, config_folder)  # Check the settings and save them if something changed
-    return settings

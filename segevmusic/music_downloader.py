@@ -202,7 +202,6 @@ class MusicDownloader:
         Removes deemix config files and prints ending message.
         """
         shutdown()
-        rmtree('./config', ignore_errors=True)
         print("--> DONE!")
 
     def download_songs(self, songs: Iterable[AMSong], upload=False):
