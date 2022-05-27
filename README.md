@@ -3,7 +3,7 @@
 
 A Python library to download songs using:
 - **Apple Music API** for finding the songs and tagging ID3 metadata
-- **Deezer API** for the downloading itself, using the [deemix](https://codeberg.org/RemixDev/deemix) library
+- **Deezer API** for the downloading itself, using the [deemix](https://deemix.app/gui) library
 
 As for songs searching support:
 - Automatic song selection
